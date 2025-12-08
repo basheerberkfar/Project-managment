@@ -1,5 +1,5 @@
 import React from 'react';
-import reactLogo from '../../../public/imgs/sp logo 12 (1).png';
+import reactLogo from '../../../public/imgs/1600w-IONPxU08A1s.webp';
 import { FaGlobe } from 'react-icons/fa';
 
 
@@ -10,8 +10,8 @@ const Header = () => {
         
         {/* الجانب الأيمن: الهوية */}
         <div className="flex items-center gap-4">
-          <div className="w-32 h-12  rounded-xl flex items-center justify-center text-white font-bold text-lg">
-                      <img src={reactLogo}  alt="React logo" />
+          <div className="w-28 h-2  rounded-xl flex items-center justify-center text-white font-bold text-lg">
+                      <img src={reactLogo}  alt="React logo" className='w-28 h-20 bg-cyan-50' />
           </div>
                       <div className="h-10 w-px bg-gray-300"></div>
           <div className="flex items-center gap-4">

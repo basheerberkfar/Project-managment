@@ -21,32 +21,6 @@ const SignUpForm = () => {
      سجل دخولك
      </Link>
       </p>
-        {/* 3. أزرار التسجيل بالمنصات */}
-        <div className="flex gap-3 mb-6 mx-0 w-full">
-          
-          <button className="w-72 mx-0 flex bg-gray-50 hover:bg-gray-100 border border-gray-300 text-gray-900 py-3 px-3 rounded-4xl transition-colors">
-           <img src='/imgs/g-logo.png' alt='G' 
-            className="w-5 h-5 mx-0.5"
-             />
-             <div >
-           إنشاء حساب عبر جوجل
-           </div>
-          </button>
-
-          <button className="w-72 mx-0 flex bg-gray-50 hover:bg-gray-100 border border-gray-300 text-gray-900 py-3 px-4 rounded-4xl transition-colors">
-            <img src='/imgs/Apple_logo_black.svg' alt='Apple'
-            className="w-5 h-5 mx-0.5 "
-            />
-            إنشاء حساب عبر آبل
-          </button>
-        </div>
-
-        {/* 4. الفاصل */}
-        <div className="flex items-center mb-6">
-          <div className="flex-1 "></div>
-          <span className="mx-4 text-gray-600 text-md">or</span>
-          <div className="flex-1 "></div>
-        </div>
 
         {/* 5. حقول الإدخال */}
         <div className="space-y-4">

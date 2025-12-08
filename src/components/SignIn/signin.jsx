@@ -21,32 +21,6 @@ const SignInForm = () => {
           </Link>
         </p>
 
-        {/* 3. أزرار التسجيل بالمنصات */}
-        <div className="flex gap-3 mb-6 mx-0 w-full">
-         
-          
-          <button className="w-72 mx-0 flex bg-gray-50 text-md hover:bg-gray-100 border border-gray-300 text-black py-3 px-3 rounded-4xl transition-colors">
-           <img src='/imgs/g-logo.png' alt='G' 
-            className="w-6 h-6 mx-3"
-             />
-           تسجيل عبر جوجل
-          </button>
-
-          <button className="w-72 mx-0 flex text-md bg-gray-50 hover:bg-gray-100 border border-gray-300 text-black py-3 px-4 rounded-4xl transition-colors">
-            <img src='/imgs/Apple_logo_black.svg' alt='Apple'
-            className="w-6 h-6 mx-3 "
-            />
-            تسجيل عبر آبل
-          </button>
-        </div>
-
-        {/* 4. الفاصل */}
-        <div className="flex items-center mb-6">
-          <div className="flex-1 "></div>
-          <span className="mx-4 text-gray-600 text-md">أو</span>
-          <div className="flex-1 "></div>
-        </div>
-
         {/* 5. حقول الإدخال */}
         <div className="space-y-4">
 
@@ -85,7 +59,7 @@ const SignInForm = () => {
           </Link>
         </div>
 
-        {/* 8. زر إنشاء الحساب */}
+        {/* 8. زر تسجيل الدخول */}
         <button className="w-full bg-blue-300 hover:bg-blue-700 text-white py-3 px-4 font-medium transition-colors rounded-4xl">
          تسجيل الدخول
         </button>
