@@ -1,0 +1,55 @@
+* {
+    margin: 0 ;
+    padding: 0 ;
+    box-sizing: border-box ;
+    // justify-content: start;
+}
+
+$main-color: cyan;
+aside{
+.sidebar{
+    width: 250px;
+    height: 100vh;
+    background: linear-gradient(135deg,cyan, white);
+}
+
+.sidebar1{
+    width: 50px;
+    height: 100vh;
+    background: linear-gradient(135deg,cyan, white);
+    overflow: hidden;
+}
+
+.main{
+    text-align: end;
+    padding: 10px;
+}
+
+.icons{
+    color: black;
+    font-size: 30px;
+    margin-top: 90px;
+}
+
+ul{
+    padding: 30px 0 0 30px;
+    list-style: none;
+li{
+    text-align: center;
+    margin-top: 16px;
+    font-size: 50px;
+    display: flex;
+    justify-content: space-around;
+a{
+    font-size: 50px;
+    text-align: center;
+    color: black;
+}
+}
+}
+
+.icon{
+    font-size: 50px;
+    color: black;
+}
+}

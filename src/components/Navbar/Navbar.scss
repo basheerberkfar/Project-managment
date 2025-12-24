@@ -1,0 +1,62 @@
+/* في src/index.css */
+@import "tailwindcss"; 
+.nav{
+    position: fixed;
+    top:0;
+    width:100vw;
+    height: 14vh;
+    background: linear-gradient(45deg,cyan, white);
+}
+.nav1{
+    position: fixed;
+    top:0;
+    width:100vw;
+    height: 45vh;
+    background: linear-gradient(45deg,cyan, white);
+}
+.list {
+    list-style-type: none;
+    background-color: linear-gradient(45deg,cyan, white);
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+.items {
+    margin-right: 20px;
+    font-size: 20px;
+    text-transform: uppercase;
+    color:black;
+    cursor: pointer;
+}
+.btn {
+    display: none;
+    position: absolute;
+    right: 10px;
+    top: 7px;
+    color: black;
+    padding: 5px;
+    font-size: 25px;
+}
+
+@media (max-width: 500px){
+ .list{
+    flex-direction: column;
+    height: auto;
+}
+ .items:nth-child(1){
+    border-top: 1px solid rgba(0,0,0, 0.555);
+    margin-top: 50px;
+ }
+ .items {
+    width: 100%;
+    border-top: 1px solid rgba(0,0,0, 0.555);
+    text-align: center;
+    margin-right: 0%;
+    padding: 20px 0;
+ }
+ .btn {
+    display: block;
+ }
+}
