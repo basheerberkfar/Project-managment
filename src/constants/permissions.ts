@@ -1,0 +1,62 @@
+export const PERMISSION_GROUPS = {
+  users: 'users',
+  roles: 'roles',
+  clients: 'clients',
+  client_groups: 'client_groups',
+  delegates: 'delegates',
+  contracts: 'contracts',
+  contract_types: 'contract_types',
+  products: 'products',
+  product_types: 'product_types',
+  product_units: 'product_units',
+  stores: 'stores',
+  store_requests: 'store_requests',
+  store_operations: 'store_operations',
+  cars: 'cars',
+  car_logs: 'car_logs',
+  car_log_types: 'car_log_types',
+  bills: 'bills',
+  bill_types: 'bill_types',
+  bill_reasons: 'bill_reasons',
+  bonds: 'bonds',
+  bond_types: 'bond_types',
+  tasks: 'tasks',
+  trash: 'trash',
+  task_types: 'task_types',
+  offers: 'offers',
+  visits: 'visits',
+  follow_ups: 'follow_ups',
+  reports: 'reports',
+  settings: 'settings',
+  contract_templates: 'contract_templates',
+  reasons: 'reasons',
+} as const;
+
+export const PERMISSION_ACTIONS = {
+  view: 'view',
+  create: 'create',
+  update: 'update',
+  delete: 'delete',
+  change_status: 'change_status',
+  change_password: 'change_password',
+  restructure: 'restructure',
+  assign: 'assign',
+  delegate_warehouse: 'delegate_warehouse',
+  print: 'print',
+  decline: 'decline',
+  cancel: 'cancel',
+  done: 'done',
+  activate: 'activate',
+  accept: 'accept',
+  reject: 'reject',
+  export: 'export',
+  transfer: 'transfer',
+  restore: 'restore',
+  force_delete: 'force_delete',
+} as const;
+
+export type PermissionGroup =
+  (typeof PERMISSION_GROUPS)[keyof typeof PERMISSION_GROUPS];
+
+export type PermissionAction =
+  (typeof PERMISSION_ACTIONS)[keyof typeof PERMISSION_ACTIONS];
