@@ -1,8 +1,9 @@
 export const ROUTE = {
-  POST: '/roles',
-  LIST: '/roles',
-  PERMISSIONS: '/roles/get/permissions',
-  GET_ONE: (id: number | string) => `/roles/${id}`,
-  UPDATE: (id: number | string) => `/roles/${id}`,
-  DELETE: (id: number | string) => `/roles/${id}`,
+  POST: '/Roles',
+  LIST: '/Roles',
+  GET_ONE: (id: number | string) => `/Roles/${id}`,
+  UPDATE: (id: number | string) => `/Roles/${id}`,
+  DELETE: (id: number | string) => `/Roles/${id}`,
+  GET_PERMISSIONS: (id: number | string) => `Roles/${id}/permissions`,
+  UPDATE_PERMISSIONS: (id: number | string) => `Roles/${id}/permissions`,
 };

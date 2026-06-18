@@ -8,7 +8,14 @@ export type SidebarSchemaItem = {
   children?: SidebarSchemaItem[];
 };
 
-const IMPLEMENTED_PROTECTED_LINKS = new Set(['/dashboard', '/products']);
+const IMPLEMENTED_PROTECTED_LINKS = new Set([
+  '/dashboard',
+  '/products',
+  '/users-roles/users',
+  '/users-roles/roles',
+  '/users-roles/departments',
+  '/users-roles/job-titles',
+]);
 
 type AuthStateUser = {
   is_admin?: boolean | number | null;
@@ -48,6 +55,18 @@ export const SIDEBAR_SCHEMA: SidebarSchemaItem[] = [
         labelKey: 'roles-list',
         link: '/users-roles/roles',
         permissionNames: ['roles.view'],
+      },
+      {
+        key: 'departments-list',
+        labelKey: 'departments-list',
+        link: '/users-roles/departments',
+        permissionNames: ['departments.view'],
+      },
+      {
+        key: 'job-titles-list',
+        labelKey: 'job-titles-list',
+        link: '/users-roles/job-titles',
+        permissionNames: ['job_titles.view'],
       },
     ],
   },

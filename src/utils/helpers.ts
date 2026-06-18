@@ -187,6 +187,7 @@ export const getApiErrorMessage = (error: unknown, fallbackMessage: string) => {
       response?: {
         data?: {
           message?: unknown;
+          title?: unknown;
           error?: unknown;
           detail?: unknown;
           errors?: Record<string, unknown>;
@@ -196,7 +197,10 @@ export const getApiErrorMessage = (error: unknown, fallbackMessage: string) => {
   )?.response?.data;
 
   const message =
-    responseData?.message ?? responseData?.error ?? responseData?.detail;
+    responseData?.message ??
+    responseData?.title ??
+    responseData?.error ??
+    responseData?.detail;
 
   if (typeof message === 'string' && message.trim()) {
     return message.trim();

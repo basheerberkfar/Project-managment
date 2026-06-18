@@ -24,6 +24,8 @@
   "users-roles": "Users & Roles",
   "users-list": "Users List",
   "roles-list": "Roles List",
+  "departments-list": "Departments List",
+  "job-titles-list": "Job Titles List",
   "settings": "Settings",
   "types": "Types"
 }

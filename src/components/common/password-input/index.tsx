@@ -11,6 +11,7 @@ type PasswordInput<T extends FieldValues> = {
   placeholder?: string;
   required?: boolean;
   showErrorOnTouchedOnly?: boolean;
+  autoComplete?: string;
 };
 
 const PasswordInput = <T extends FieldValues>({
@@ -20,6 +21,7 @@ const PasswordInput = <T extends FieldValues>({
   placeholder,
   required,
   showErrorOnTouchedOnly,
+  autoComplete,
 }: PasswordInput<T>) => {
   const { t } = useTranslation('auth');
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -35,6 +37,7 @@ const PasswordInput = <T extends FieldValues>({
       required={required}
       placeholder={placeholder ?? t('right-side.password')}
       type={showPassword ? 'text' : 'password'}
+      autoComplete={autoComplete}
       leftIcon={<Lock size={16} />}
       rightIcon={!showPassword ? <EyeSlashIcon size={16} /> : <Eye size={16} />}
       onRightIconClick={togglePassword}

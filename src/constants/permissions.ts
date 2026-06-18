@@ -1,5 +1,7 @@
 export const PERMISSION_GROUPS = {
   users: 'users',
+  departments: 'departments',
+  job_titles: 'job_titles',
   roles: 'roles',
   clients: 'clients',
   client_groups: 'client_groups',

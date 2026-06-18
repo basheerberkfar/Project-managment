@@ -1,5 +1,3 @@
-export type RoleStatus = 'active' | 'inactive';
-
 export type RolePermissionDto = {
   id: string;
   name?: string;
@@ -24,27 +22,33 @@ export type RolePermissionGroupDto = {
 };
 
 export type RoleDto = {
-  id: number | string;
-  name?: string;
-  title?: string;
-  description?: string;
-  status?: RoleStatus;
-  is_default?: number | boolean;
-  permissions: string[] | RolePermissionDto[];
-  users_count?: number;
-  usersCount?: number;
-  created_at?: string;
+  id: string;
+  name: string;
+  guardName: string;
+  isAdmin?: boolean;
+  isDefault?: boolean;
   createdAt?: string;
+  updatedAt?: string;
 };
 
 export type CreateRoleDto = {
   name: string;
-  permission_ids: string[];
+  guardName: string;
 };
 
 export type UpdateRoleDto = Partial<CreateRoleDto>;
 
 export type RoleFormValues = {
   name: string;
-  permissions_ids: string[];
+  guardName: string;
+};
+
+export type UpdateRolePermissionsDto = {
+  permission_ids: string[];
+};
+
+export type RolePermissionsQueryResult = {
+  groups: RolePermissionGroupDto[];
+  selectedIds: string[];
+  raw: unknown;
 };

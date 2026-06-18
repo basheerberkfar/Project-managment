@@ -60,7 +60,6 @@ const AsyncSelectInput = ({
   ...props
 }: AsyncSelectInputProps) => {
   const [options, setOptions] = useState<SelectOption[]>([]);
-  const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -69,6 +68,7 @@ const AsyncSelectInput = ({
 
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fetchOptionsRef = useRef(fetchOptions);
+  const pageRef = useRef(1);
   const effectiveValueOption = props.value ?? valueOption ?? props.defaultValue;
 
   useEffect(() => {
@@ -139,16 +139,9 @@ const AsyncSelectInput = ({
   useEffect(() => {
     if (props.isDisabled) return;
 
-    setPage(1);
+    pageRef.current = 1;
     void loadOptions(1, search, true);
-  }, [fetchOptions, loadOptions, props.isDisabled, search]);
-
-  useEffect(() => {
-    if (props.isDisabled) {
-      setIsLoading(false);
-      setMenuIsOpen(false);
-    }
-  }, [props.isDisabled]);
+  }, [loadOptions, props.isDisabled, search]);
 
   useEffect(() => {
     return () => {
@@ -171,29 +164,26 @@ const AsyncSelectInput = ({
       }
 
       searchTimeoutRef.current = setTimeout(() => {
-        setPage(1);
         setSearch(searchValue);
-        void loadOptions(1, searchValue, true);
       }, debounceTime);
 
       return newValue;
     },
-    [debounceTime, loadOptions, props.isDisabled]
+    [debounceTime, props.isDisabled]
   );
 
   const handleMenuScrollToBottom = useCallback(() => {
     if (props.isDisabled) return;
     if (!menuIsOpen || !hasMore || isLoading) return;
 
-    const nextPage = page + 1;
-    setPage(nextPage);
+    const nextPage = pageRef.current + 1;
+    pageRef.current = nextPage;
     void loadOptions(nextPage, search, false);
   }, [
     hasMore,
     isLoading,
     loadOptions,
     menuIsOpen,
-    page,
     props.isDisabled,
     search,
   ]);

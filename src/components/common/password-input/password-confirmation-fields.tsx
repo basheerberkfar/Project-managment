@@ -12,6 +12,8 @@ type PasswordConfirmationFieldsProps<T extends FieldValues> = {
   required?: boolean;
   showErrorOnTouchedOnly?: boolean;
   className?: string;
+  passwordAutoComplete?: string;
+  confirmPasswordAutoComplete?: string;
 };
 
 const PasswordConfirmationFields = <T extends FieldValues>({
@@ -25,6 +27,8 @@ const PasswordConfirmationFields = <T extends FieldValues>({
   required,
   showErrorOnTouchedOnly,
   className,
+  passwordAutoComplete,
+  confirmPasswordAutoComplete,
 }: PasswordConfirmationFieldsProps<T>) => {
   return (
     <div className={className ?? 'grid grid-cols-1 gap-4 md:grid-cols-2'}>
@@ -35,6 +39,7 @@ const PasswordConfirmationFields = <T extends FieldValues>({
         placeholder={passwordPlaceholder}
         required={required}
         showErrorOnTouchedOnly={showErrorOnTouchedOnly}
+        autoComplete={passwordAutoComplete}
       />
       <PasswordInput
         name={confirmPasswordName}
@@ -43,6 +48,7 @@ const PasswordConfirmationFields = <T extends FieldValues>({
         placeholder={confirmPasswordPlaceholder}
         required={required}
         showErrorOnTouchedOnly={showErrorOnTouchedOnly}
+        autoComplete={confirmPasswordAutoComplete}
       />
     </div>
   );

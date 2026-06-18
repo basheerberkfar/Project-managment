@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import SidebarItem from './sidebar-item';
 import type { Item } from './types';
-import { SquaresFour, Stack } from '@phosphor-icons/react';
+import { IdentificationCard, Shield, SquaresFour, Stack, UsersThree } from '@phosphor-icons/react';
 import {
   filterSidebarSchema,
   getSidebarPermissionContext,
@@ -24,6 +24,11 @@ const SidebarList = ({ isCollapsed, onItemClick }: SidebarListProps) => {
     () => ({
       dashboard: <SquaresFour size={ICON_SIZE} className={ICONS_CLASSNAME} />,
       products: <Stack size={ICON_SIZE} className={ICONS_CLASSNAME} />,
+      'users-roles': <Shield size={ICON_SIZE} className={ICONS_CLASSNAME} />,
+      'users-list': <UsersThree size={ICON_SIZE} className={ICONS_CLASSNAME} />,
+      'roles-list': <Shield size={ICON_SIZE} className={ICONS_CLASSNAME} />,
+      'departments-list': <IdentificationCard size={ICON_SIZE} className={ICONS_CLASSNAME} />,
+      'job-titles-list': <IdentificationCard size={ICON_SIZE} className={ICONS_CLASSNAME} />,
     }),
     [ICONS_CLASSNAME, ICON_SIZE]
   );

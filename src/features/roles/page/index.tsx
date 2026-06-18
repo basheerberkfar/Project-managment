@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import { Plus } from '@phosphor-icons/react';
 import { useEffect, useMemo, useReducer } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -6,13 +7,14 @@ import Can from '@/components/can';
 import DeleteModal from '@/components/common/delete-modal';
 import { Table } from '@/components/common/table';
 import TableActions from '@/components/common/table/table-actions';
-import { PAGE_SIZE_OPTIONS, ROLES_TABLE_KEY } from '@/constants/constants';
 import PrimaryButton from '@/components/ui/button/primary-button';
 import { useToast } from '@/components/ui/toast';
+import { PAGE_SIZE_OPTIONS, ROLES_TABLE_KEY } from '@/constants/constants';
 import { PERMISSION_ACTIONS, PERMISSION_GROUPS } from '@/constants/permissions';
+import { useDebounce } from '@/hooks/use-debounce';
+import { usePageTableSettings } from '@/hooks/use-page-table-settings';
 import { encodeRouteId, getApiSuccessMessage } from '@/utils/helpers';
 import { hasPermission, hasPermissionKey } from '@/utils/permissions';
-import { usePageTableSettings } from '@/hooks/use-page-table-settings';
 import { useRolesTableColumns } from '../hooks/use-roles-table-columns';
 import { useDeleteRoleMutation, useRolesQuery, type RoleDto } from '../service';
 import { rolesListActionNames } from './state/action-names';
@@ -20,17 +22,18 @@ import { rolesListInitialState } from './state/initial-state';
 import { rolesListReducer } from './state/reducer';
 
 function sortRoles(
-  roles: RoleDto[],
+  items: RoleDto[],
   sort?: { columnId: string; direction: 'asc' | 'desc' }
 ) {
-  if (!sort) return roles;
+  if (!sort) return items;
 
-  const sorted = [...roles].sort((a, b) => {
-    const key = sort.columnId as keyof RoleDto;
-    const left = String(a[key] ?? '');
-    const right = String(b[key] ?? '');
-    return left.localeCompare(right, undefined, { numeric: true });
-  });
+  const sorted = [...items].sort((left, right) =>
+    String((left as Record<string, unknown>)[sort.columnId] ?? '').localeCompare(
+      String((right as Record<string, unknown>)[sort.columnId] ?? ''),
+      undefined,
+      { numeric: true }
+    )
+  );
 
   return sort.direction === 'desc' ? sorted.reverse() : sorted;
 }
@@ -56,6 +59,11 @@ export default function RolesListPage() {
         ? sort
         : rolesListInitialState.sort,
   });
+  const debouncedSearch = useDebounce(state.search, 500);
+  const canViewRoles = hasPermission(
+    PERMISSION_GROUPS.roles,
+    PERMISSION_ACTIONS.view
+  );
 
   useEffect(() => {
     setTablePageSettings(ROLES_TABLE_KEY, {
@@ -76,32 +84,15 @@ export default function RolesListPage() {
 
   const { data, isLoading } = useRolesQuery({
     page: state.pageIndex,
-    per_page: state.pageSize,
-    sort: state.sort?.columnId,
-    order: state.sort?.direction,
-    search: state.search,
+    pageSize: state.pageSize,
+    search: debouncedSearch || undefined,
   });
   const { mutate: deleteRole, isPending: isDeleting } = useDeleteRoleMutation();
-  const canViewRoles = hasPermission(
-    PERMISSION_GROUPS.roles,
-    PERMISSION_ACTIONS.view
+
+  const displayedRoles = useMemo(
+    () => sortRoles(data?.items ?? [], state.sort),
+    [data?.items, state.sort]
   );
-
-  const roles = Array.isArray(
-    (data as unknown as { data?: RoleDto[] } | undefined)?.data
-  )
-    ? ((data as unknown as { data: RoleDto[] }).data ?? [])
-    : Array.isArray(
-          (data as unknown as { result?: RoleDto[] } | undefined)?.result
-        )
-      ? ((data as unknown as { result: RoleDto[] }).result ?? [])
-      : [];
-  const totalCount =
-    data?.meta?.total ??
-    (data?.meta?.last_page != null
-      ? data.meta.last_page * state.pageSize
-      : roles.length);
-
   const tableColumns = useRolesTableColumns({
     onView: (role) =>
       navigate(`/users-roles/roles/${encodeRouteId(role.id)}/display`),
@@ -113,22 +104,23 @@ export default function RolesListPage() {
       }),
   });
 
-  const displayedRoles = useMemo(
-    () => sortRoles(roles, state.sort),
-    [roles, state.sort]
-  );
-
   return (
     <div className="h-full flex flex-col gap-6">
       <TableActions
-        onChange={(event) => {
+        onChange={(event) =>
           dispatch({
             type: rolesListActionNames.setSearch,
             payload: event.target.value,
-          });
-        }}
+          })
+        }
         value={state.search}
-        handleReset={() => undefined}
+        searchPlaceholder={t('search_roles')}
+        handleReset={() =>
+          dispatch({
+            type: rolesListActionNames.setSearch,
+            payload: '',
+          })
+        }
         handleFilter={() => undefined}
         handleSettingReset={tableColumns.handleSettingReset}
         handelApply={tableColumns.handleApplySettings}
@@ -136,11 +128,9 @@ export default function RolesListPage() {
         defaultColumns={tableColumns.defaultColumnsConfig}
         setColumns={tableColumns.setColumnsConfig}
         primaryButton={
-          <Can
-            group={PERMISSION_GROUPS.roles}
-            action={PERMISSION_ACTIONS.create}
-          >
+          <Can group={PERMISSION_GROUPS.roles} action={PERMISSION_ACTIONS.create}>
             <PrimaryButton
+              icon={<Plus size={16} />}
               onClick={() => navigate('/users-roles/roles/create')}
             >
               {t('add_role')}
@@ -154,7 +144,7 @@ export default function RolesListPage() {
         data={displayedRoles}
         columns={tableColumns.columns}
         actionsColumn={{
-          header: t('actions'),
+          header: t('common:actions'),
           actions: tableColumns.roleTableActions,
           checkPermission: (permission) =>
             hasPermissionKey(permission, PERMISSION_GROUPS.roles),
@@ -176,7 +166,7 @@ export default function RolesListPage() {
         pagination={{
           pageIndex: state.pageIndex,
           pageSize: state.pageSize,
-          totalCount,
+          totalCount: data?.pagination.totalCount ?? displayedRoles.length,
           onPageChange: (page) =>
             dispatch({
               type: rolesListActionNames.setPageIndex,
@@ -208,6 +198,7 @@ export default function RolesListPage() {
         isLoading={isDeleting}
         handelDelete={() => {
           if (!state.selectedRole) return;
+
           deleteRole(state.selectedRole.id, {
             onSuccess: (response) => {
               showToast({

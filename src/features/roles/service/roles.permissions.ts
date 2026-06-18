@@ -4,6 +4,11 @@ import type {
   RolePermissionSectionDto,
 } from './roles.types';
 
+const toReadableLabel = (value: string) =>
+  value
+    .replace(/[_-]+/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+
 // Translation key mappings for modules
 const moduleTranslationKeys: Record<string, string> = {
   users: 'permission_module_users',
@@ -22,12 +27,20 @@ const moduleTranslationKeys: Record<string, string> = {
   cars: 'permission_module_cars',
   car_logs: 'permission_module_car_logs',
   car_log_types: 'permission_module_car_log_types',
+  departments: 'permission_module_departments',
+  job_titles: 'permission_module_job_titles',
   bills: 'permission_module_bills',
   bill_types: 'permission_module_bill_types',
   bill_reasons: 'permission_module_bill_reasons',
   bonds: 'permission_module_bonds',
   bond_types: 'permission_module_bond_types',
+  permissions: 'permission_module_permissions',
+  states: 'permission_module_states',
+  cities: 'permission_module_cities',
   tasks: 'permission_module_tasks',
+  task_logs: 'permission_module_task_logs',
+  task_prices: 'permission_module_task_prices',
+  task_discussions: 'permission_module_task_discussions',
   task_types: 'permission_module_task_types',
   offers: 'permission_module_offers',
   visits: 'permission_module_visits',
@@ -35,6 +48,46 @@ const moduleTranslationKeys: Record<string, string> = {
   reports: 'permission_module_reports',
   settings: 'permission_module_settings',
   reasons: 'permission_module_reasons',
+  notes: 'permission_module_notes',
+  media: 'permission_module_media',
+  customers: 'permission_module_customers',
+  cashiers: 'permission_module_cashiers',
+  chats: 'permission_module_chats',
+  tags: 'permission_module_tags',
+  messages: 'permission_module_messages',
+  message_reads: 'permission_module_message_reads',
+  notifications: 'permission_module_notifications',
+  alerts: 'permission_module_alerts',
+  occasionables: 'permission_module_occasionables',
+  occasions: 'permission_module_occasions',
+  priorities: 'permission_module_priorities',
+  projects: 'permission_module_projects',
+  project_features: 'permission_module_project_features',
+  project_members: 'permission_module_project_members',
+  project_renewals: 'permission_module_project_renewals',
+  project_statuses: 'permission_module_project_statuses',
+  quotations: 'permission_module_quotations',
+  quotation_blocks: 'permission_module_quotation_blocks',
+  quotation_sections: 'permission_module_quotation_sections',
+  task_categories: 'permission_module_task_categories',
+  task_discussion_reads: 'permission_module_task_discussion_reads',
+  task_disbursement_items: 'permission_module_task_disbursement_items',
+  task_followers: 'permission_module_task_followers',
+  internal_tasks: 'permission_module_internal_tasks',
+  internal_task_logs: 'permission_module_internal_task_logs',
+  internal_task_users: 'permission_module_internal_task_users',
+  internal_task_types: 'permission_module_internal_task_types',
+  internal_task_discussions: 'permission_module_internal_task_discussions',
+  internal_task_discussion_reads:
+    'permission_module_internal_task_discussion_reads',
+  internal_task_extension_requests:
+    'permission_module_internal_task_extension_requests',
+  employee_monthly_performances:
+    'permission_module_employee_monthly_performances',
+  employee_monthly_performance_statuses:
+    'permission_module_employee_monthly_performance_statuses',
+  onesignal_subscriptions: 'permission_module_onesignal_subscriptions',
+  professions: 'permission_module_professions',
 };
 
 // Translation key mappings for sections
@@ -89,13 +142,13 @@ const actionTranslationKeys: Record<string, string> = {
 };
 
 const getModuleTranslationKey = (moduleId: string) =>
-  moduleTranslationKeys[moduleId];
+  moduleTranslationKeys[moduleId] ?? toReadableLabel(moduleId);
 
 const getSectionTranslationKey = (sectionId: string) =>
-  sectionTranslationKeys[sectionId];
+  sectionTranslationKeys[sectionId] ?? toReadableLabel(sectionId);
 
 const getActionTranslationKey = (actionId: string) =>
-  actionTranslationKeys[actionId];
+  actionTranslationKeys[actionId] ?? toReadableLabel(actionId);
 
 const normalizePermissionEntry = (
   moduleId: string,
@@ -202,6 +255,70 @@ const normalizePermissionGroupObject = (
   };
 };
 
+const normalizePermissionGroupArray = (
+  permissions: RolePermissionDto[]
+): RolePermissionGroupDto[] => {
+  const groupedPermissions = permissions.reduce<
+    Record<string, RolePermissionDto[]>
+  >((acc, permission) => {
+    const groupId =
+      permission.group ??
+      permission.module ??
+      permission.name?.split('.')[0] ??
+      'general';
+
+    if (!acc[groupId]) {
+      acc[groupId] = [];
+    }
+
+    acc[groupId].push(permission);
+    return acc;
+  }, {});
+
+  return Object.entries(groupedPermissions).map(([groupId, items]) => ({
+    id: groupId,
+    label: getModuleTranslationKey(groupId),
+    permissions: items,
+    sections: [
+      {
+        id: 'global',
+        label: getSectionTranslationKey('global'),
+        permissions: items,
+      },
+    ],
+  }));
+};
+
+const normalizePermissionArrayEntry = (
+  item: Record<string, unknown>
+): RolePermissionDto | null => {
+  const id = item.id ?? item.value ?? item.permission_id;
+  if (id == null) return null;
+
+  const rawName =
+    typeof item.name === 'string'
+      ? item.name
+      : typeof item.title === 'string'
+        ? item.title
+        : '';
+  const group =
+    typeof item.group === 'string'
+      ? item.group
+      : rawName.split('.')[0] || 'general';
+  const action =
+    rawName.includes('.') ? rawName.split('.').at(-1) || rawName : rawName;
+
+  return {
+    id: String(id),
+    name: rawName || undefined,
+    title: typeof item.title === 'string' ? item.title : undefined,
+    module: group,
+    group,
+    key: action || undefined,
+    label: action ? getActionTranslationKey(action) : toReadableLabel(group),
+  };
+};
+
 export const normalizeRolePermissionGroups = (
   payload: unknown
 ): RolePermissionGroupDto[] => {
@@ -212,7 +329,19 @@ export const normalizeRolePermissionGroups = (
         payload)
       : payload;
 
-  if (!source || typeof source !== 'object' || Array.isArray(source)) {
+  if (Array.isArray(source)) {
+    const permissions = source
+      .map((item) =>
+        item && typeof item === 'object'
+          ? normalizePermissionArrayEntry(item as Record<string, unknown>)
+          : null
+      )
+      .filter((item): item is RolePermissionDto => Boolean(item));
+
+    return normalizePermissionGroupArray(permissions);
+  }
+
+  if (!source || typeof source !== 'object') {
     return [];
   }
 

@@ -22,20 +22,10 @@ export function useRolesTableColumns({
   const defaultColumns: Column<RoleDto>[] = useMemo(
     () => [
       {
-        id: 'title',
-        header: t('title'),
+        id: 'name',
+        header: t('name'),
         sortable: true,
-        render: (row) => (
-          <TableText text={row.name ?? row.title ?? `#${row.id}`} />
-        ),
-      },
-      {
-        id: 'users_count',
-        header: t('members_count'),
-        sortable: true,
-        render: (row) => (
-          <TableText text={String(row.users_count ?? row.usersCount ?? 0)} />
-        ),
+        render: (row) => <TableText text={row.name || `#${row.id}`} />,
       },
     ],
     [t]
@@ -57,7 +47,7 @@ export function useRolesTableColumns({
         label: t('edit'),
         onClick: onEdit,
         permission: PERMISSION_ACTIONS.update,
-        isVisible: (role) => !role.is_default,
+        isVisible: (role) => !role.isDefault && !role.isAdmin,
         variant: 'primary',
       },
       {
@@ -66,7 +56,7 @@ export function useRolesTableColumns({
         label: t('delete'),
         onClick: onDelete,
         permission: PERMISSION_ACTIONS.delete,
-        isVisible: (role) => !role.is_default,
+        isVisible: (role) => !role.isDefault && !role.isAdmin,
         variant: 'danger',
       },
     ],

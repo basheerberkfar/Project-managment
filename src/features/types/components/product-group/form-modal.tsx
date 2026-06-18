@@ -309,7 +309,7 @@ export default function ProductGroupFormModal({
               />
               <SelectInput
                 name="category"
-                control={control}
+                control={control as never}
                 label={t('category')}
                 placeholder={t('select_category')}
                 options={categoryOptions}

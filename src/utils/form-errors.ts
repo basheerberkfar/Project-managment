@@ -6,6 +6,13 @@ const FIELD_NAME_ALIASES: Record<string, string> = {
   permession_ids: 'permissions_ids',
   permission_ids: 'permissions_ids',
   permissions: 'permissions_ids',
+  departmentid: 'departmentId',
+  jobtitleid: 'jobTitleId',
+  isactive: 'isActive',
+  confirmpassword: 'confirmPassword',
+  newpassword: 'password',
+  newpasswordconfirmation: 'confirmPassword',
+  confirmnewpassword: 'confirmPassword',
   name: 'title',
 };
 
@@ -21,6 +28,7 @@ type HandleFormErrorsOptions<TFieldValues extends FieldValues> = {
 const FORM_LEVEL_ERROR_KEYS = new Set([
   'error',
   'message',
+  'title',
   'detail',
   'non_field_errors',
   'general',
@@ -49,11 +57,13 @@ const extractResponseMessage = (error: unknown): string | null => {
 
   const payload = data as {
     message?: unknown;
+    title?: unknown;
     error?: unknown;
     detail?: unknown;
   };
 
-  const message = payload.message ?? payload.error ?? payload.detail;
+  const message =
+    payload.message ?? payload.title ?? payload.error ?? payload.detail;
 
   if (typeof message === 'string' && message.trim()) {
     return message.trim();
@@ -62,16 +72,50 @@ const extractResponseMessage = (error: unknown): string | null => {
   return null;
 };
 
+const normalizeFieldKey = (key: string) =>
+  key
+    .trim()
+    .replace(/\[(\w+)\]/g, '.$1')
+    .split('.')
+    .filter(Boolean)
+    .map((part) =>
+      part
+        .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
+        .replace(/[\s-]+/g, '_')
+        .toLowerCase()
+    )
+    .join('');
+
 const resolveFieldName = <TFieldValues extends FieldValues>(
   key: string,
   fieldMap?: Partial<Record<string, Path<TFieldValues>>>
 ) => {
-  const normalizedKey = FIELD_NAME_ALIASES[key] ?? key;
+  const normalizedLookupKey = normalizeFieldKey(key);
+  const aliasedNormalizedKey =
+    FIELD_NAME_ALIASES[normalizedLookupKey] ??
+    FIELD_NAME_ALIASES[key] ??
+    key;
+
+  const matchedFieldMapEntry = fieldMap
+    ? Object.entries(fieldMap).find(
+        ([fieldKey]) => normalizeFieldKey(fieldKey) === normalizedLookupKey
+      )?.[1]
+    : undefined;
+
+  const matchedAliasedFieldMapEntry = fieldMap
+    ? Object.entries(fieldMap).find(
+        ([fieldKey]) =>
+          normalizeFieldKey(fieldKey) === normalizeFieldKey(aliasedNormalizedKey)
+      )?.[1]
+    : undefined;
 
   return (
     fieldMap?.[key] ??
-    fieldMap?.[normalizedKey] ??
-    (normalizedKey as Path<TFieldValues>)
+    fieldMap?.[normalizedLookupKey] ??
+    fieldMap?.[aliasedNormalizedKey] ??
+    matchedFieldMapEntry ??
+    matchedAliasedFieldMapEntry ??
+    (aliasedNormalizedKey as Path<TFieldValues>)
   );
 };
 

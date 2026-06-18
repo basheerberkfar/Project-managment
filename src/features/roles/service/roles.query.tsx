@@ -1,24 +1,35 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  extractApiItem,
+  extractApiList,
+  extractPaginationMeta,
+} from '@/types/apis';
 import { rolesKeys } from './roles.keys';
 import { rolesService } from './roles.endpoints';
-import { normalizeRolePermissionGroups } from './roles.permissions';
+import {
+  normalizeRolePermissionGroups,
+  normalizeRolePermissionIds,
+} from './roles.permissions';
 import type {
   RoleDto,
-  RolePermissionGroupDto,
+  RolePermissionsQueryResult,
   UpdateRoleDto,
+  UpdateRolePermissionsDto,
 } from './roles.types';
 
 export const useRolesQuery = (params?: {
   page?: number;
-  per_page?: number;
-  sort?: string;
-  order?: 'asc' | 'desc';
+  pageSize?: number;
   search?: string;
 }) =>
   useQuery({
     queryKey: rolesKeys.list(params),
     queryFn: () => rolesService.list(params),
-    select: (res) => res.data,
+    select: (res) => ({
+      items: extractApiList<RoleDto>(res.data),
+      pagination: extractPaginationMeta(res.data, params?.pageSize ?? 10),
+      raw: res.data,
+    }),
   });
 
 export const useRoleQuery = (id: number | string) =>
@@ -26,18 +37,19 @@ export const useRoleQuery = (id: number | string) =>
     queryKey: rolesKeys.detail(id),
     queryFn: () => rolesService.getOne(id),
     enabled: !!id,
-    select: (res) => {
-      const payload = res.data as { data?: RoleDto; result?: RoleDto };
-      return (payload.data ?? payload.result ?? null) as RoleDto | null;
-    },
+    select: (res) => extractApiItem<RoleDto>(res.data),
   });
 
-export const useRolePermissionsQuery = () =>
+export const useRolePermissionsQuery = (id: number | string) =>
   useQuery({
-    queryKey: rolesKeys.permissions(),
-    queryFn: () => rolesService.listPermissions(),
-    select: (res) =>
-      normalizeRolePermissionGroups(res.data) as RolePermissionGroupDto[],
+    queryKey: rolesKeys.permissions(id),
+    queryFn: () => rolesService.getPermissions(id),
+    enabled: Boolean(id),
+    select: (res): RolePermissionsQueryResult => ({
+      groups: normalizeRolePermissionGroups(res.data),
+      selectedIds: normalizeRolePermissionIds(res.data),
+      raw: res.data,
+    }),
   });
 
 export const useCreateRoleMutation = () => {
@@ -65,6 +77,28 @@ export const useUpdateRoleMutation = () => {
       });
       queryClient.invalidateQueries({
         queryKey: rolesKeys.lists(),
+      });
+    },
+  });
+};
+
+export const useUpdateRolePermissionsMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: number | string;
+      data: UpdateRolePermissionsDto;
+    }) => rolesService.updatePermissions(id, data),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({
+        queryKey: rolesKeys.permissions(id),
+      });
+      queryClient.invalidateQueries({
+        queryKey: rolesKeys.detail(id),
       });
     },
   });

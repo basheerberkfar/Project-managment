@@ -21,7 +21,7 @@ export default function RolePageActions({
       items={[
         { label: t('users_roles'), link: '/users-roles/roles' },
         { label: t('roles_list'), link: '/users-roles/roles' },
-        { label: isEdit ? t('edit_role') : t('create_role') },
+        { label: isEdit ? t('edit_role') : t('add_role') },
       ]}
       actions={
         <PagesHeader
