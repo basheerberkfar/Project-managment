@@ -3,23 +3,58 @@ import type { AuthUser } from '@/services/auth/auth.types';
 import Cookies from 'js-cookie';
 
 const AUTH_TOKEN_KEY = 'graduation';
+const REFRESH_TOKEN_KEY = 'graduation-refresh';
 const AUTH_USER_STORAGE_KEY = 'luxury-branch-user';
 const LEGACY_AUTH_STORAGE_KEY = 'auth';
+
+const isSecureContext = () =>
+  typeof window !== 'undefined' && window.location.protocol === 'https:';
+
+const syncLegacyAuthState = (user: AuthUser) => {
+  const permissions = user.permissions ?? user.permission ?? [];
+
+  localStorage.setItem(
+    LEGACY_AUTH_STORAGE_KEY,
+    JSON.stringify({
+      state: {
+        user: {
+          ...user,
+          permissions,
+        },
+        permissions,
+      },
+    })
+  );
+};
 
 export const setAuthToken = (token: string) => {
   Cookies.set(AUTH_TOKEN_KEY, token, {
     expires: 7,
-    secure: true,
+    secure: isSecureContext(),
     sameSite: 'strict',
   });
 };
 
 export const getAuthToken = () => Cookies.get(AUTH_TOKEN_KEY);
 
+
 export const clearAuthToken = () => Cookies.remove(AUTH_TOKEN_KEY);
+
+export const setRefreshToken = (token: string) => {
+  Cookies.set(REFRESH_TOKEN_KEY, token, {
+    expires: 30,
+    secure: isSecureContext(),
+    sameSite: 'strict',
+  });
+};
+
+export const getRefreshToken = () => Cookies.get(REFRESH_TOKEN_KEY);
+
+export const clearRefreshToken = () => Cookies.remove(REFRESH_TOKEN_KEY);
 
 export const setAuthUser = (user: AuthUser) => {
   localStorage.setItem(AUTH_USER_STORAGE_KEY, JSON.stringify(user));
+  syncLegacyAuthState(user);
 };
 
 export const getAuthUser = () => {
@@ -40,6 +75,7 @@ export const clearAuthUser = () => {
 
 export const clearAuthSession = () => {
   clearAuthToken();
+  clearRefreshToken();
   clearAuthUser();
   localStorage.removeItem(LEGACY_AUTH_STORAGE_KEY);
 };

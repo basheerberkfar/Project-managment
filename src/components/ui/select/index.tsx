@@ -1,11 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState } from 'react';
+import * as React from 'react';
 import clsx from 'clsx';
+import { CaretDown, XCircle } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
-import ReactSelect from 'react-select';
-import type { Props as ReactSelectProps } from 'react-select';
-import { XCircle, CaretDown } from '@phosphor-icons/react';
-import Checkbox from '../checkbox';
+import ReactSelect, {
+  components,
+  type ControlProps,
+  type DropdownIndicatorProps,
+  type ClearIndicatorProps,
+  type GroupBase,
+  type MenuListProps,
+  type MultiValueRemoveProps,
+  type OptionProps,
+} from 'react-select';
 import {
   Controller,
   type Control,
@@ -19,24 +26,251 @@ export interface SelectOption {
   icon?: React.ReactNode;
 }
 
-export interface SelectInputProps extends Omit<
-  ReactSelectProps<SelectOption, boolean>,
-  'name' | 'defaultValue'
-> {
+type SelectChangeMeta = {
+  action: 'select-option' | 'clear';
+};
+
+export interface SelectInputProps {
   label?: string;
   error?: string;
   wrapperClassName?: string;
   leftIcon?: React.ReactNode;
   isMulti?: boolean;
   isClearable?: boolean;
+  isDisabled?: boolean;
+  isLoading?: boolean;
+  options?: SelectOption[];
+  value?: SelectOption | SelectOption[] | null;
+  defaultValue?: SelectOption | SelectOption[] | null;
+  placeholder?: string;
+  required?: boolean;
+  onChange?: (
+    value: SelectOption | SelectOption[] | null,
+    actionMeta?: SelectChangeMeta
+  ) => void;
+  onBlur?: () => void;
+  onFocus?: () => void;
+  onMenuOpen?: () => void;
+  onMenuClose?: () => void;
   onMenuScrollToBottom?: () => void;
+  onInputChange?: (
+    newValue: string,
+    actionMeta: { action: string }
+  ) => string | void;
+  inputValue?: string;
+  menuIsOpen?: boolean;
   control?: Control<any>;
   name?: string;
   rules?: object;
-  defaultValue?: SelectOption | SelectOption[] | null;
-  required?: boolean;
   showErrorOnTouchedOnly?: boolean;
+  filterOption?: null | ((option: SelectOption, inputValue: string) => boolean);
+  [key: string]: unknown;
 }
+
+type SelectInstanceProps = {
+  leftIcon?: React.ReactNode;
+  isFocused: boolean;
+  hasError: boolean;
+  isDisabled?: boolean;
+};
+
+type OptionInstanceProps = {
+  direction: 'rtl' | 'ltr';
+};
+
+type MenuListInstanceProps = {
+  onMenuScrollToBottom?: () => void;
+};
+
+type MultiValueRemoveInstanceProps = {
+  clearLabel: string;
+  isDisabled?: boolean;
+};
+
+export const Select = ReactSelect;
+export const SelectTrigger = ReactSelect;
+export const SelectValue = ReactSelect;
+export const SelectContent = ReactSelect;
+export const SelectItem = ReactSelect;
+
+const getSingleOption = (
+  value?: SelectOption | SelectOption[] | null
+): SelectOption | null => {
+  if (Array.isArray(value)) {
+    return value[0] ?? null;
+  }
+
+  return value ?? null;
+};
+
+const getMultiOptions = (
+  value?: SelectOption | SelectOption[] | null
+): SelectOption[] => {
+  if (Array.isArray(value)) return value;
+  return value ? [value] : [];
+};
+
+const areSelectValuesEqual = (
+  a?: SelectOption | SelectOption[] | null,
+  b?: SelectOption | SelectOption[] | null
+) => {
+  const aList = Array.isArray(a) ? a : a ? [a] : [];
+  const bList = Array.isArray(b) ? b : b ? [b] : [];
+
+  if (aList.length !== bList.length) return false;
+
+  return aList.every(
+    (item, index) => String(item.value) === String(bList[index]?.value)
+  );
+};
+
+const Control = ({
+  children,
+  ...props
+}: ControlProps<SelectOption, boolean, GroupBase<SelectOption>>) => {
+  const { selectProps, isFocused } = props;
+  const instanceProps = (selectProps as any)
+    .instanceProps as SelectInstanceProps;
+
+  return (
+    <components.Control {...props}>
+      {instanceProps.leftIcon ? (
+        <div className="me-3 flex select-none items-center">
+          <div
+            className={clsx(
+              'flex h-6 w-6 items-center justify-center transition-colors duration-200',
+              instanceProps.hasError
+                ? 'text-danger-500'
+                : isFocused
+                  ? 'text-(--color-focus-primary)'
+                  : 'text-gray-light-700 dark:text-gray-dark-500'
+            )}
+          >
+            {instanceProps.leftIcon}
+          </div>
+          <div
+            className={clsx(
+              'ms-3 h-5 w-px transition-colors duration-200',
+              instanceProps.hasError
+                ? 'bg-danger-500'
+                : isFocused
+                  ? 'bg-(--color-focus-primary)'
+                  : 'bg-gray-light-500 dark:bg-dark-card-border'
+            )}
+          />
+        </div>
+      ) : null}
+      {children}
+    </components.Control>
+  );
+};
+
+const DropdownIndicator = (
+  props: DropdownIndicatorProps<SelectOption, boolean, GroupBase<SelectOption>>
+) => (
+  <components.DropdownIndicator {...props}>
+    <CaretDown
+      weight="bold"
+      className={clsx(
+        'h-4 w-4 transition-all duration-300',
+        props.isFocused
+          ? 'text-(--color-focus-primary)'
+          : 'text-gray-light-700 dark:text-gray-dark-500',
+        props.selectProps.menuIsOpen && 'rotate-180'
+      )}
+    />
+  </components.DropdownIndicator>
+);
+
+const ClearIndicator = (
+  props: ClearIndicatorProps<SelectOption, boolean, GroupBase<SelectOption>>
+) => (
+  <components.ClearIndicator {...props}>
+    <XCircle
+      weight="fill"
+      className="h-4 w-4 text-gray-light-600 transition-colors hover:text-danger-500 dark:text-gray-dark-500"
+    />
+  </components.ClearIndicator>
+);
+
+const MultiValueRemove = (
+  props: MultiValueRemoveProps<SelectOption, true, GroupBase<SelectOption>>
+) => {
+  const instanceProps = (props.selectProps as any)
+    .instanceProps as MultiValueRemoveInstanceProps;
+
+  if (instanceProps.isDisabled) {
+    return null;
+  }
+
+  return (
+    <components.MultiValueRemove
+      {...props}
+      innerProps={{
+        ...props.innerProps,
+        'aria-label': `${instanceProps.clearLabel} ${props.data.label}`,
+      }}
+    >
+      <XCircle weight="fill" className="h-3.5 w-3.5" />
+    </components.MultiValueRemove>
+  );
+};
+
+const Option = (
+  props: OptionProps<SelectOption, boolean, GroupBase<SelectOption>>
+) => {
+  const instanceProps = (props.selectProps as any)
+    .instanceProps as OptionInstanceProps;
+
+  return (
+    <components.Option {...props}>
+      <div className="flex items-center gap-3">
+        {props.data.icon ? (
+          <div className="flex items-center">
+            <div className="flex h-5 w-5 items-center justify-center text-gray-light-700 dark:text-gray-dark-500">
+              {props.data.icon}
+            </div>
+            <div
+              className={clsx(
+                'h-4 w-px bg-gray-light-500 dark:bg-dark-card-border',
+                instanceProps.direction === 'rtl' ? 'me-3' : 'ms-3'
+              )}
+            />
+          </div>
+        ) : null}
+        <span>{props.data.label}</span>
+      </div>
+    </components.Option>
+  );
+};
+
+const MenuList = (
+  props: MenuListProps<SelectOption, boolean, GroupBase<SelectOption>>
+) => {
+  const instanceProps = (props.selectProps as any)
+    .instanceProps as MenuListInstanceProps;
+
+  return (
+    <components.MenuList
+      {...props}
+      innerProps={{
+        ...props.innerProps,
+        onScroll: (event) => {
+          props.innerProps.onScroll?.(event);
+
+          const target = event.currentTarget;
+          if (
+            target.scrollHeight > target.clientHeight &&
+            Math.ceil(target.scrollTop + target.clientHeight) >=
+              target.scrollHeight - 2
+          ) {
+            instanceProps.onMenuScrollToBottom?.();
+          }
+        },
+      }}
+    />
+  );
+};
 
 const SelectInput = ({
   label,
@@ -55,195 +289,145 @@ const SelectInput = ({
   required,
   showErrorOnTouchedOnly = true,
   placeholder,
-  ...props
+  options = [],
+  onChange,
+  onBlur,
+  onFocus,
+  onMenuOpen,
+  onMenuClose,
+  onInputChange,
+  inputValue,
+  menuIsOpen,
+  isLoading = false,
+  filterOption = (option, currentInputValue) =>
+    option.label.toLowerCase().includes(currentInputValue.toLowerCase()),
 }: SelectInputProps) => {
-  const { t } = useTranslation('common');
-  const [isFocused, setIsFocused] = useState(false);
-  const [internalValue, setInternalValue] = useState(value);
-  const menuScrollTopRef = React.useRef(0);
-  const effectivePlaceholder = placeholder ?? t('select');
-  const menuPortalTarget =
-    typeof document !== 'undefined' ? document.body : undefined;
+  const { t, i18n } = useTranslation('common');
+  const [isFocused, setIsFocused] = React.useState(false);
+  const [isOpenInternal, setIsOpenInternal] = React.useState(false);
+  const [internalValue, setInternalValue] = React.useState<
+    SelectOption | SelectOption[] | null
+  >(value ?? defaultValue ?? null);
+  const [internalInputValue, setInternalInputValue] = React.useState('');
 
-  // Sync internal value with prop
+  const effectivePlaceholder = placeholder ?? t('select');
+  const direction = i18n.language === 'ar' ? 'rtl' : 'ltr';
+  const portalTarget =
+    typeof window !== 'undefined' ? document.body : undefined;
+
   React.useEffect(() => {
-    setInternalValue(value);
+    if (value === undefined) return;
+
+    setInternalValue((prev) => {
+      if (areSelectValuesEqual(prev, value)) {
+        return prev;
+      }
+
+      return value;
+    });
   }, [value]);
 
+  React.useEffect(() => {
+    if (inputValue !== undefined) {
+      setInternalInputValue(inputValue);
+    }
+  }, [inputValue]);
+
   const effectiveValue = value !== undefined ? value : internalValue;
+  const effectiveOpen = menuIsOpen ?? isOpenInternal;
+  const searchValue =
+    inputValue !== undefined ? inputValue : internalInputValue;
 
-  const hasSelectValue = (currentValue: unknown) =>
-    isMulti
-      ? Array.isArray(currentValue) && currentValue.length > 0
-      : !!currentValue &&
-        (typeof currentValue === 'object'
-          ? (currentValue as any).value !== '' &&
-            (currentValue as any).value !== null
-          : String(currentValue).trim() !== '');
+  const syncValue = React.useCallback(
+    (
+      nextValue: SelectOption | SelectOption[] | null,
+      field?: {
+        onChange?: (value: SelectOption | SelectOption[] | null) => void;
+      },
+      actionMeta?: SelectChangeMeta
+    ) => {
+      setInternalValue(nextValue);
+      field?.onChange?.(nextValue);
+      onChange?.(nextValue, actionMeta);
+    },
+    [onChange]
+  );
 
-  const CustomOption = (props: any) => {
-    const { innerProps, innerRef, data, isFocused, isSelected, isMulti } =
-      props;
-    return (
-      <div
-        ref={innerRef}
-        {...innerProps}
-        className={clsx(
-          'flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors duration-200',
-          isFocused
-            ? 'bg-gray-light-200 dark:bg-dark-card-surface'
-            : 'bg-white dark:bg-dark-card-background',
-          isSelected &&
-            !isMulti &&
-            'bg-primary-light-50/50 dark:bg-(--color-focus-primary)/10',
-          'text-gray-light-900 dark:text-(--color-dark-primary)'
-        )}
-      >
-        {isMulti && (
-          <Checkbox
-            checked={isSelected}
-            onChange={() => {}}
-            className="pointer-events-none scale-90"
-          />
-        )}
-        {data.icon && (
-          <div className="flex items-center">
-            <div className="w-5 h-5 flex items-center justify-center text-gray-light-700 dark:text-gray-dark-500">
-              {data.icon}
-            </div>
-            {!isMulti && (
-              <div className="h-4 w-px bg-gray-light-500 dark:bg-dark-card-border mx-3" />
-            )}
-          </div>
-        )}
-        <span className="text-sm font-medium text-gray-light-900 dark:text-(--color-dark-primary)">
-          {data.label}
-        </span>
-      </div>
-    );
-  };
+  const handleMenuOpen = React.useCallback(() => {
+    if (menuIsOpen === undefined) {
+      setIsOpenInternal(true);
+    }
 
-  const CustomMenuList = (props: any) => {
-    const { children, innerRef } = props;
-    const menuListRef = React.useRef<HTMLDivElement | null>(null);
+    setIsFocused(true);
+    onMenuOpen?.();
+    onFocus?.();
+  }, [menuIsOpen, onFocus, onMenuOpen]);
 
-    React.useLayoutEffect(() => {
-      if (menuListRef.current) {
-        menuListRef.current.scrollTop = menuScrollTopRef.current;
+  const handleMenuClose = React.useCallback(() => {
+    if (menuIsOpen === undefined) {
+      setIsOpenInternal(false);
+    }
+
+    setIsFocused(false);
+    onMenuClose?.();
+  }, [menuIsOpen, onMenuClose]);
+
+  const handleInputChange = React.useCallback(
+    (nextValue: string, meta: { action: string }) => {
+      if (inputValue === undefined) {
+        setInternalInputValue(nextValue);
       }
-    }, [children]);
 
-    const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
-      const { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
-      menuScrollTopRef.current = scrollTop;
-      if (
-        scrollHeight > clientHeight &&
-        Math.ceil(scrollTop + clientHeight) >= scrollHeight - 2
-      ) {
-        onMenuScrollToBottom?.();
-      }
-    };
+      const result = onInputChange?.(nextValue, meta);
+      return typeof result === 'string' ? result : nextValue;
+    },
+    [inputValue, onInputChange]
+  );
 
-    return (
-      <div
-        ref={(node) => {
-          menuListRef.current = node;
-
-          if (typeof innerRef === 'function') {
-            innerRef(node);
-            return;
-          }
-
-          if (innerRef) {
-            innerRef.current = node;
-          }
-        }}
-        onScroll={handleScroll}
-        style={props.getStyles('menuList', props)}
-      >
-        {children}
-      </div>
-    );
-  };
+  const customFilterOption = React.useCallback(
+    (
+      candidate: { data: SelectOption; label: string; value: string },
+      currentInputValue: string
+    ) => {
+      if (filterOption === null) return true;
+      return filterOption(candidate.data, currentInputValue);
+    },
+    [filterOption]
+  );
 
   const renderSelect = (
     field?: {
       value?: unknown;
-      onChange?: (value: unknown) => void;
+      onChange?: (value: SelectOption | SelectOption[] | null) => void;
       onBlur?: () => void;
       name?: string;
     },
     errorOverride?: string
   ) => {
-    const currentValue = field ? field.value : effectiveValue;
-    const shouldFloat = isFocused || hasSelectValue(currentValue);
+    const currentValue = field
+      ? ((field.value !== undefined ? field.value : effectiveValue) as
+          | SelectOption
+          | SelectOption[]
+          | null
+          | undefined)
+      : effectiveValue;
+    const currentOption = getSingleOption(currentValue);
+    const currentOptions = getMultiOptions(currentValue);
+    const shouldFloat =
+      isFocused || Boolean(searchValue) || currentOptions.length > 0;
     const displayError = errorOverride ?? error;
-
-    const CustomControl = ({ children, ...controlProps }: any) => {
-      const { innerRef, innerProps } = controlProps;
-      return (
-        <div
-          ref={innerRef}
-          {...innerProps}
-          className={clsx(
-            'flex items-center px-4 transition-all duration-200 rounded-lg min-h-[52px] relative cursor-pointer',
-            isDisabled
-              ? 'bg-light-surface-disabled dark:bg-dark-surface-disabled border border-transparent opacity-60'
-              : 'bg-white dark:bg-dark-card-background',
-            displayError
-              ? 'border border-danger-500 ring-1 ring-danger-500/30'
-              : isFocused
-                ? 'border border-(--color-focus-primary) ring-1 ring-(--color-focus-primary)/20'
-                : 'border border-gray-light-500 dark:border-dark-card-border',
-            !isDisabled &&
-              !displayError &&
-              !isFocused &&
-              'hover:border-gray-light-600 dark:hover:border-gray-dark-700'
-          )}
-        >
-          {leftIcon && (
-            <div className="flex items-center me-3 select-none">
-              <div
-                className={clsx(
-                  'w-6 h-6 flex items-center justify-center transition-colors duration-200',
-                  displayError
-                    ? 'text-danger-500'
-                    : isFocused
-                      ? 'text-(--color-focus-primary)'
-                      : 'text-gray-light-700 dark:text-gray-dark-500'
-                )}
-              >
-                {leftIcon}
-              </div>
-              <div
-                className={clsx(
-                  'h-5 w-px ms-3 transition-colors duration-200',
-                  displayError
-                    ? 'bg-danger-500'
-                    : isFocused
-                      ? 'bg-(--color-focus-primary)'
-                      : 'bg-gray-light-500 dark:bg-dark-card-border'
-                )}
-              />
-            </div>
-          )}
-          <div className="flex-1 flex items-center overflow-hidden">
-            {children}
-          </div>
-        </div>
-      );
-    };
+    const selectedValue = isMulti ? currentOptions : currentOption;
 
     return (
       <div className={clsx('w-full', wrapperClassName)}>
-        <div className="relative  group">
-          {label && (
+        <div className="group relative">
+          {label ? (
             <label
               className={clsx(
-                'absolute px-1.5 text-sm pointer-events-none transition-all duration-200 z-10 select-none',
+                'pointer-events-none absolute z-10 px-1.5 text-sm transition-all duration-200 select-none',
                 shouldFloat
-                  ? 'top-0 start-3 -translate-y-1/2 text-xs font-medium bg-white dark:bg-dark-card-background'
-                  : 'top-1/2 start-4 -translate-y-1/2',
+                  ? 'start-3 top-0 -translate-y-1/2 bg-white text-xs font-medium dark:bg-dark-card-background'
+                  : 'start-4 top-1/2 -translate-y-1/2',
                 displayError
                   ? 'text-danger-500'
                   : isFocused
@@ -253,183 +437,169 @@ const SelectInput = ({
               )}
             >
               {label}
-              {required && <span className="ms-1 text-danger-500">*</span>}
+              {required ? (
+                <span className="ms-1 text-danger-500">*</span>
+              ) : null}
             </label>
-          )}
+          ) : null}
 
-          <ReactSelect
-            {...props}
-            placeholder={effectivePlaceholder}
+          <ReactSelect<SelectOption, boolean, GroupBase<SelectOption>>
+            aria-label={label ?? effectivePlaceholder}
+            classNamePrefix="luxury-select"
             isMulti={isMulti}
             isDisabled={isDisabled}
+            isLoading={isLoading}
             isClearable={isClearable}
-            value={currentValue as any}
-            isSearchable
-            menuPortalTarget={menuPortalTarget}
-            menuShouldBlockScroll={false}
-            closeMenuOnScroll={false}
-            captureMenuScroll
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => {
-              setIsFocused(false);
-              field?.onBlur?.();
-            }}
-            onChange={(newValue, actionMeta) => {
-              setInternalValue(newValue as any);
-              field?.onChange?.(newValue);
-              props.onChange?.(newValue, actionMeta);
-            }}
+            isRtl={direction === 'rtl'}
+            menuIsOpen={effectiveOpen}
             menuPosition="fixed"
             menuPlacement="auto"
-            classNames={{
-              menu: () =>
-                '!bg-white dark:!bg-dark-card-background !border !border-gray-light-500 dark:!border-dark-card-border !pointer-events-auto',
-              menuPortal: () => '!z-[2147483647] !pointer-events-auto',
+            options={options}
+            value={
+              selectedValue as SelectOption | readonly SelectOption[] | null
+            }
+            inputValue={searchValue}
+            closeMenuOnSelect={!isMulti}
+            hideSelectedOptions={isMulti}
+            blurInputOnSelect={!isMulti}
+            backspaceRemovesValue
+            controlShouldRenderValue
+            unstyled
+            placeholder={shouldFloat ? effectivePlaceholder : ''}
+            noOptionsMessage={() => t('no_data_available')}
+            loadingMessage={() => t('loading')}
+            filterOption={customFilterOption}
+            onMenuOpen={handleMenuOpen}
+            onMenuClose={handleMenuClose}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => {
+              field?.onBlur?.();
+              onBlur?.();
+              if (!effectiveOpen) {
+                setIsFocused(false);
+              }
+            }}
+            onInputChange={handleInputChange}
+            onChange={(nextValue, meta) => {
+              if (meta.action === 'clear') {
+                syncValue(isMulti ? [] : null, field, { action: 'clear' });
+                return;
+              }
+
+              if (isMulti) {
+                syncValue((nextValue as SelectOption[]) ?? [], field, {
+                  action: 'select-option',
+                });
+                return;
+              }
+
+              syncValue((nextValue as SelectOption | null) ?? null, field, {
+                action: 'select-option',
+              });
             }}
             components={{
-              Control: CustomControl,
-              IndicatorSeparator: () => null,
-              DropdownIndicator: (props) => (
-                <div className="px-2 flex items-center justify-center">
-                  <CaretDown
-                    weight="bold"
-                    className={clsx(
-                      'w-4 h-4 transition-all duration-300',
-                      isFocused
-                        ? 'text-(--color-focus-primary)'
-                        : 'text-gray-light-700 dark:text-gray-dark-500',
-                      props.selectProps.menuIsOpen && 'rotate-180'
-                    )}
-                  />
-                </div>
-              ),
-              MultiValueRemove: ({ innerProps }) => (
-                <div
-                  {...innerProps}
-                  className="cursor-pointer flex items-center hover:text-danger-500 transition-colors"
-                >
-                  <XCircle weight="fill" className="w-4 h-4" />
-                </div>
-              ),
-              Option: CustomOption,
-              MenuList: CustomMenuList,
+              Control,
+              DropdownIndicator,
+              ClearIndicator,
+              IndicatorSeparator: null,
+              Option,
+              MenuList,
+              MultiValueRemove,
+            }}
+            {...({
+              instanceProps: {
+                leftIcon,
+                isFocused,
+                hasError: Boolean(displayError),
+                isDisabled,
+                direction,
+                onMenuScrollToBottom,
+                clearLabel: t('clear'),
+              },
+            } as any)}
+            classNames={{
+              control: ({
+                isFocused: controlFocused,
+                isDisabled: controlDisabled,
+              }) =>
+                clsx(
+                  'relative flex h-[52px] min-h-[52px] w-full items-center rounded-lg px-4 text-start text-gray-light-900 transition-all duration-200 outline-none dark:text-(--color-dark-primary)',
+                  controlDisabled
+                    ? 'cursor-not-allowed border border-transparent bg-light-surface-disabled text-gray-light-900 opacity-60 dark:bg-dark-surface-disabled dark:text-(--color-dark-primary)'
+                    : 'cursor-pointer bg-white dark:bg-dark-card-background',
+                  displayError
+                    ? 'border border-danger-500 ring-1 ring-danger-500/30'
+                    : controlFocused || effectiveOpen
+                      ? 'border border-(--color-focus-primary) ring-1 ring-(--color-focus-primary)/20'
+                      : 'border border-gray-light-500 dark:border-dark-card-border',
+                  !controlDisabled &&
+                    !displayError &&
+                    !(controlFocused || effectiveOpen) &&
+                    'hover:border-gray-light-600 dark:hover:border-gray-dark-700'
+                ),
+              valueContainer: () =>
+                clsx(
+                  'min-h-[50px] min-w-0 flex-1 py-0',
+                  leftIcon ? 'ps-0' : ''
+                ),
+              placeholder: () =>
+                'm-0 text-sm font-normal text-gray-light-700 dark:text-gray-dark-500',
+              singleValue: () =>
+                'm-0 block truncate text-sm font-normal text-gray-light-900 dark:text-(--color-dark-primary)',
+              input: () =>
+                'm-0 py-0 text-sm font-normal text-gray-light-900 dark:text-(--color-dark-primary)',
+              menu: () =>
+                'z-[2147483647] mt-2 overflow-hidden rounded-lg border border-gray-light-500 bg-white p-1 text-start shadow-lg dark:border-dark-card-border dark:bg-dark-card-background',
+              menuList: () => 'max-h-60 overflow-y-auto p-1',
+              option: ({ isFocused: optionFocused, isSelected }) =>
+                clsx(
+                  'cursor-pointer rounded-md px-4 py-3 text-sm font-medium text-gray-light-900 outline-none transition-colors duration-200 dark:text-(--color-dark-primary)',
+                  optionFocused &&
+                    'bg-gray-light-200 dark:bg-dark-card-surface',
+                  isSelected &&
+                    'bg-primary-light-50/50 dark:bg-(--color-focus-primary)/10'
+                ),
+              multiValue: () =>
+                'my-0.5 rounded-md bg-primary-light-100 px-2 py-1 dark:bg-dark-card-surface',
+              multiValueLabel: () =>
+                'px-0 py-0 text-xs font-medium text-primary-light-800 dark:text-white',
+              multiValueRemove: () =>
+                'ms-1 flex items-center rounded-sm p-0 text-primary-light-800 transition-colors hover:text-danger-500 dark:text-white',
+              clearIndicator: () => 'p-0 me-2',
+              dropdownIndicator: () => 'p-0',
+              indicatorsContainer: () =>
+                'h-full gap-2 items-center self-stretch',
+              noOptionsMessage: () =>
+                'px-4 py-3 text-sm text-gray-light-700 dark:text-gray-dark-500',
+              loadingMessage: () =>
+                'px-4 py-3 text-sm text-gray-light-700 dark:text-gray-dark-500',
             }}
             styles={{
-              control: () => ({
-                display: 'none',
-              }),
-              valueContainer: (base) => ({
-                ...base,
-                padding: '0px',
-                margin: '0px',
-                display: 'flex',
-                gap: '4px',
-              }),
               input: (base) => ({
                 ...base,
-                color: 'var(--select-value-color)',
-                margin: '0px',
-                padding: '0px',
-                '& input': {
-                  fontFamily: 'inherit',
-                  color: 'inherit !important',
-                },
-              }),
-              singleValue: (base) => ({
-                ...base,
-                color: 'var(--select-value-color)',
-                margin: '0px',
-                fontSize: '14px',
-                fontWeight: '400',
-              }),
-              placeholder: (base) => ({
-                ...base,
-                color: shouldFloat
-                  ? 'var(--select-placeholder-visible)'
-                  : 'transparent',
-                margin: '0px',
-                fontSize: '14px',
+                margin: 0,
+                paddingTop: 0,
+                paddingBottom: 0,
               }),
               menu: (base) => ({
                 ...base,
                 zIndex: 2147483647,
-                backgroundColor: 'transparent',
-                borderRadius: 'var(--rounded-2)',
-                marginTop: '8px',
-                padding: '4px',
-                overflow: 'hidden',
-                animation: 'fadeIn 0.2s ease-out',
               }),
               menuPortal: (base) => ({
                 ...base,
                 zIndex: 2147483647,
                 pointerEvents: 'auto',
               }),
-              menuList: (base) => ({
-                ...base,
-                padding: '4px',
-                backgroundColor: 'inherit',
-                '&::-WebkitScrollbar': {
-                  width: '6px',
-                },
-                '&::-webkit-scrollbar-track': {
-                  background: 'transparent',
-                },
-                '&::-webkit-scrollbar-thumb': {
-                  background: 'var(--select-menu-scrollbar-thumb)',
-                  borderRadius: '3px',
-                },
-              }),
-              multiValue: (base) => ({
-                ...base,
-                backgroundColor: 'var(--select-multivalue-bg)',
-                borderRadius: 'var(--rounded-1)',
-                padding: '2px 8px',
-                margin: '2px',
-                border: '1px solid transparent',
-                transition: 'all 0.2s ease',
-                '&:hover': {
-                  borderColor: 'var(--color-focus-primary)',
-                },
-              }),
-              multiValueLabel: (base) => ({
-                ...base,
-                color: 'var(--select-multivalue-label)',
-                fontSize: '12px',
-                fontWeight: '500',
-              }),
-              dropdownIndicator: (base, state) => ({
-                ...base,
-                padding: '0px',
-                color: state.isFocused
-                  ? 'var(--color-focus-primary)'
-                  : 'var(--color-gray-light-700)',
-                transition: 'all 0.3s ease',
-                transform: state.selectProps.menuIsOpen
-                  ? 'rotate(180deg)'
-                  : 'rotate(0deg)',
-                '&:hover': {
-                  color: 'var(--color-focus-primary)',
-                },
-              }),
-              clearIndicator: (base) => ({
-                ...base,
-                padding: '0px',
-                marginRight: '8px',
-                color: 'var(--color-gray-light-600)',
-                '&:hover': {
-                  color: 'var(--color-danger-500)',
-                },
-              }),
             }}
+            menuPortalTarget={portalTarget}
           />
         </div>
 
-        {displayError && (
-          <p className="mt-1.5 text-xs text-danger-500 font-medium ps-1 animate-in fade-in slide-in-from-top-1">
+        {displayError ? (
+          <p className="animate-in fade-in slide-in-from-top-1 mt-1.5 ps-1 text-xs font-medium text-danger-500">
             {displayError}
           </p>
-        )}
+        ) : null}
       </div>
     );
   };
@@ -451,6 +621,7 @@ const SelectInput = ({
                 : Array.isArray(message)
                   ? message[0]
                   : error;
+
           return renderSelect(field, effectiveError);
         }}
       />

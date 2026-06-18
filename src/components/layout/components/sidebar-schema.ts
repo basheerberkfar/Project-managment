@@ -8,6 +8,8 @@ export type SidebarSchemaItem = {
   children?: SidebarSchemaItem[];
 };
 
+const IMPLEMENTED_PROTECTED_LINKS = new Set(['/dashboard', '/products']);
+
 type AuthStateUser = {
   is_admin?: boolean | number | null;
   isAdmin?: boolean | number | null;
@@ -67,154 +69,12 @@ export const SIDEBAR_SCHEMA: SidebarSchemaItem[] = [
       },
     ],
   },
-  {
-    key: 'cars',
-    labelKey: 'cars',
-    children: [
-      {
-        key: 'cars-list',
-        labelKey: 'cars-list',
-        link: '/cars',
-        permissionNames: ['cars.view'],
-      },
-      {
-        key: 'car-logs',
-        labelKey: 'car-logs',
-        link: '/car-logs',
-        permissionNames: ['car_logs.view'],
-      },
-    ],
-  },
-  {
-    key: 'tasks',
-    labelKey: 'tasks',
-    children: [
-      {
-        key: 'tasks-list',
-        labelKey: 'tasks-list',
-        link: '/tasks',
-        permissionNames: ['tasks.view'],
-      },
-      {
-        key: 'deleted-tasks',
-        labelKey: 'deleted-tasks',
-        link: '/tasks/deleted',
-        permissionNames: [
-          'trash.view',
-          'trash.restore',
-          'trash.force_delete',
-          'tasks.trash.view',
-          'tasks.trash.restore',
-          'tasks.trash.force_delete',
-        ],
-      },
-    ],
-  },
-  {
-    key: 'delegates',
-    labelKey: 'delegates',
-    link: '/delegates',
-    permissionNames: ['delegates.view'],
-  },
 
   {
     key: 'products',
     labelKey: 'products',
     link: '/products',
     permissionNames: ['products.view'],
-  },
-  {
-    key: 'bonds',
-    labelKey: 'bonds',
-    link: '/bonds',
-    permissionNames: ['bonds.view'],
-  },
-  {
-    key: 'contracts',
-    labelKey: 'contracts',
-    children: [
-      {
-        key: 'contracts-list',
-        labelKey: 'contracts-list',
-        link: '/contracts',
-        permissionNames: ['contracts.view'],
-      },
-      {
-        key: 'contract-requests',
-        labelKey: 'contract-requests',
-        link: '/contracts/requests',
-        permissionNames: ['contracts.view'],
-      },
-    ],
-  },
-  {
-    key: 'store',
-    labelKey: 'store',
-    children: [
-      {
-        key: 'store-requests',
-        labelKey: 'store-requests',
-        link: '/store-requests',
-        permissionNames: [
-          'store_requests.view',
-          'store_requests.create',
-          'store_requests.update',
-          'store_requests.delete',
-        ],
-      },
-      {
-        key: 'store-transactions',
-        labelKey: 'store-transactions',
-        link: '/store-transactions',
-        permissionNames: [
-          'store_requests.view',
-          'store_requests.create',
-          'store_requests.update',
-          'store_requests.delete',
-        ],
-      },
-    ],
-  },
-  {
-    key: 'orders',
-    labelKey: 'orders',
-    link: '/orders',
-    permissionNames: ['orders.view'],
-  },
-  {
-    key: 'types',
-    labelKey: 'types',
-    link: '/types',
-    permissionNames: [
-      'contract_types.view',
-      'bond_types.view',
-      'product_types.view',
-      'product_units.view',
-      'task_types.view',
-      'bill_types.view',
-      'car_log_types.view',
-      'store_operations.view',
-      'bill_reasons.view',
-      'reasons.view',
-    ],
-  },
-  {
-    key: 'settings',
-    labelKey: 'settings',
-    link: '/settings',
-    permissionNames: [
-      'settings.view',
-      'vat.view',
-      'states.view',
-      'cities.view',
-      'locations.view',
-      'contract_templates.view',
-      'settings.vat.view',
-      'settings.states.view',
-      'settings.cities.view',
-      'settings.locations.view',
-      'settings.contract_templates.view',
-    ],
   },
 ];
 
@@ -308,10 +168,13 @@ export const getSidebarPermissionContext = () => {
   collectPermissionNames(legacyUser?.role?.permissions, permissionNames);
 
   const isAdmin = storedUser?.is_admin === 1;
+  const isLegacyAdmin =
+    legacyUser?.is_admin === 1 ||
+    legacyUser?.isAdmin === true;
 
   return {
     permissionNames,
-    isAdmin,
+    isAdmin: isAdmin || isLegacyAdmin,
   };
 };
 
@@ -321,6 +184,9 @@ const hasItemPermission = (
   isAdmin: boolean
 ) => {
   if (isAdmin) return true;
+  if (item.key === 'dashboard') {
+    return permissionNames.size > 0;
+  }
   if (!item.permissionNames?.length) return false;
 
   return item.permissionNames.some((permission) =>
@@ -369,7 +235,7 @@ export const getFirstSidebarLink = (
   return null;
 };
 
-export const getFirstAccessibleSidebarLink = () => {
+export const getFirstAccessibleSidebarLink = () => {          
   const { permissionNames, isAdmin } = getSidebarPermissionContext();
   const visibleItems = filterSidebarSchema(
     SIDEBAR_SCHEMA,
@@ -377,5 +243,16 @@ export const getFirstAccessibleSidebarLink = () => {
     isAdmin
   );
 
-  return getFirstSidebarLink(visibleItems) ?? '/dashboard';
+  const firstImplementedLink = getFirstSidebarLink(
+    visibleItems.map((item) => ({
+      ...item,
+      children: item.children?.filter(
+        (child) =>
+          !child.link || IMPLEMENTED_PROTECTED_LINKS.has(child.link)
+      ),
+    }))
+      .filter((item) => !item.link || IMPLEMENTED_PROTECTED_LINKS.has(item.link))
+  );
+
+  return firstImplementedLink ?? '/dashboard';
 };

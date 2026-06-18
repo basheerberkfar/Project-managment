@@ -15,6 +15,8 @@ const NotFound = lazy(() => import('@/features/not-found/page'));
 
 const DisplayProduct = lazy(() => import('@/features/products/page/view'));
 const isAuthenticated = () => !!getAuthToken();
+
+console.log('isAuthenticated', getAuthToken());
 const getDefaultProtectedPath = () => getFirstAccessibleSidebarLink();
 // const isAuthenticated = () => true;
 

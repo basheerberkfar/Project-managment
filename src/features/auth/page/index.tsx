@@ -16,7 +16,7 @@ import { useLoginMutation } from '@/services/auth/auth.mutation';
 import { createLoginSchema } from '../utils';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useNavigate } from 'react-router-dom';
-import { setAuthToken, setAuthUser } from '@/utils/helpers';
+import { setAuthToken, setAuthUser, setRefreshToken } from '@/utils/helpers';
 import { handleFormErrors } from '@/utils/form-errors';
 import type { LoginResponse } from '@/services/auth/auth.types';
 
@@ -74,8 +74,10 @@ const SplitLayout: React.FC = () => {
       },
       {
         onSuccess: (response: LoginResponse) => {
-          setAuthToken(response.data.token);
-          setAuthUser(response.data.user);
+          console.log('response', response);
+          setAuthToken(response.accessToken);
+          setRefreshToken(response.refreshToken);
+          setAuthUser(response.user);
           if (response.message?.trim()) {
             showToastMessage(response.message, 'success');
           }

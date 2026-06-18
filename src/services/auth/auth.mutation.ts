@@ -1,7 +1,11 @@
 import { useMutation } from '@tanstack/react-query';
 import { authApi } from './auth.endpoints';
 import type { mutationOptions } from '@/types/mutation-wrapper.types';
-import type { CheckEmailResponse, LoginResponse } from './auth.types';
+import type {
+  CheckEmailResponse,
+  LoginResponse,
+  RefreshResponse,
+} from './auth.types';
 
 export const useCheckEmailMutation = (
   options?: mutationOptions<CheckEmailResponse>
@@ -47,6 +51,24 @@ export const useLogoutMutation = (options?: mutationOptions) => {
 
     onError: (error) => {
       console.error('Create user failed', error);
+
+      options?.onError?.(error);
+    },
+  });
+};
+
+export const useRefreshMutation = (
+  options?: mutationOptions<RefreshResponse>
+) => {
+  return useMutation({
+    mutationFn: authApi.refresh,
+
+    onSuccess: (data: RefreshResponse) => {
+      options?.onSuccess?.(data);
+    },
+
+    onError: (error) => {
+      console.error('Refresh token failed', error);
 
       options?.onError?.(error);
     },

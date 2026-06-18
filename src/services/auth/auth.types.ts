@@ -2,6 +2,7 @@ import type {
   PermissionAction,
   PermissionGroup,
 } from '@/constants/permissions';
+import type { ApiDetailResponse } from '@/types/apis';
 
 export type CheckEmailRequest = {
   email: string;
@@ -26,7 +27,6 @@ export type CheckEmailResponse = {
 export type LoginRequest = {
   email: string;
   password: string;
-  branch_id?: number;
 };
 
 export type UserRolePermissions = Partial<
@@ -62,12 +62,14 @@ export type AuthBranch = {
 };
 
 export type AuthUser = {
-  id: number;
+  id: number | string;
   full_name: string;
+  name?: string;
   email: string;
-  status: number;
-  is_default: number;
+  status?: number;
+  is_default?: number;
   is_admin: number;
+  isAdmin?: boolean;
   contract_start_date: string | null;
   contract_end_date: string | null;
   residency_type: string | null;
@@ -76,16 +78,42 @@ export type AuthUser = {
   roles: AuthRole[];
   branch: AuthBranch | null;
   created_at: string;
-  permissions?: unknown[];
-  permission: unknown[];
+  permissions?: string[];
+  permission: string[];
   image: string | null;
 };
 
-export type LoginResponse = {
-  success: boolean;
-  message: string;
-  data: {
-    token: string;
-    user: AuthUser;
+export type LoginApiResponse = {
+  accessToken: string;
+  refreshToken: string;
+  expiresAtUtc: string;
+  user: {
+    id: number | string;
+    name: string;
+    email: string;
+    isAdmin: boolean;
+    permissions: string[];
   };
 };
+
+export type AuthTokens = {
+  accessToken: string;
+  refreshToken: string;
+  expiresAtUtc: string;
+};
+
+export type LoginResponse = AuthTokens & {
+  user: AuthUser;
+  message?: string;
+};
+
+export type RefreshRequest = {
+  refreshToken: string;
+};
+
+export type RefreshResponse = AuthTokens & {
+  user?: AuthUser;
+  message?: string;
+};
+
+export type MeResponse = ApiDetailResponse<AuthUser> | { user: AuthUser } | AuthUser;
