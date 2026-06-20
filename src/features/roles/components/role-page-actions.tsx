@@ -25,9 +25,9 @@ export default function RolePageActions({
       ]}
       actions={
         <PagesHeader
-          secondaryText={t('cancel')}
+          secondaryText={t('common:cancel')}
           onSecondaryClick={onCancel}
-          btnText={t('save')}
+          btnText={t('common:save')}
           onClick={onSubmit}
           primaryButtonType="submit"
           primaryDisabled={saveDisabled}

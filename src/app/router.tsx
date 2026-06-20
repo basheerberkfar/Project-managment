@@ -8,6 +8,7 @@ import { getAuthToken } from '@/utils/helpers';
 
 const Login = lazy(() => import('@/features/auth/page'));
 const Dashboard = lazy(() => import('@/features/dashboard/page'));
+const Clients = lazy(() => import('@/features/clients/page'));
 
 const Products = lazy(() => import('@/features/products/page'));
 const ProductsAction = lazy(() => import('@/features/products/page/form'));
@@ -65,6 +66,15 @@ export const protectedRoutes: Routes[] = [
       },
       { path: 'dashboard', element: <Dashboard /> },
     ],
+  },
+  {
+    path: '/clients-list',
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout />
+      </ProtectedRoute>
+    ),
+    children: [{ path: '', element: <Clients /> }],
   },
   {
     path: '/products',

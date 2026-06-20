@@ -8,7 +8,6 @@ import SectionCard from '@/components/ui/section-card';
 import FormInput from '@/components/ui/formInput';
 import { useToast } from '@/components/ui/toast';
 import { handleFormErrors } from '@/utils/form-errors';
-import { extractApiItem } from '@/types/apis';
 import RolePageActions from '@/features/roles/components/role-page-actions';
 import RolePermissionsSection from '@/features/roles/components/role-permissions-section';
 import { RoleFormSkeleton } from '@/features/roles/components/role-form-skeleton';
@@ -19,7 +18,6 @@ import {
   useCreateRoleMutation,
   useRolePermissionsQuery,
   useRoleQuery,
-  useUpdateRolePermissionsMutation,
   useUpdateRoleMutation,
   type CreateRoleDto,
   type RoleFormValues,
@@ -40,10 +38,6 @@ export default function RoleFormPage() {
     useCreateRoleMutation();
   const { mutateAsync: updateRole, isPending: isUpdating } =
     useUpdateRoleMutation();
-  const {
-    mutateAsync: updateRolePermissions,
-    isPending: isUpdatingPermissions,
-  } = useUpdateRolePermissionsMutation();
   const schema = useMemo(() => getRoleSchema(t), [t]);
   const [selectedPermissionsState, setSelectedPermissionsState] = useState<
     string[]
@@ -80,7 +74,7 @@ export default function RoleFormPage() {
   const onSubmit = async (values: RoleFormValues) => {
     const payload: CreateRoleDto = {
       name: values.name.trim(),
-      guardName: values.guardName.trim(),
+      PermissionIds: selectedPermissions,
     };
 
     try {
@@ -91,29 +85,8 @@ export default function RoleFormPage() {
           id: decodedId,
           data: payload as UpdateRoleDto,
         });
-
-        await updateRolePermissions({
-          id: decodedId,
-          data: {
-            permission_ids: selectedPermissions,
-          },
-        });
       } else {
         response = await createRole(payload);
-
-        const createdRole = extractApiItem<{ id?: string | number }>(
-          (response as { data?: unknown })?.data
-        );
-        const createdRoleId = createdRole?.id;
-
-        if (createdRoleId && selectedPermissions.length) {
-          await updateRolePermissions({
-            id: createdRoleId,
-            data: {
-              permission_ids: selectedPermissions,
-            },
-          });
-        }
       }
 
       showToast({
@@ -156,9 +129,7 @@ export default function RoleFormPage() {
         isEdit={isEdit}
         onCancel={() => navigate('/users-roles/roles')}
         onSubmit={handleSubmit(onSubmit)}
-        saveDisabled={
-          !canSubmit || isCreating || isUpdating || isUpdatingPermissions
-        }
+        saveDisabled={!canSubmit || isCreating || isUpdating}
       />
 
       <>
@@ -170,15 +141,6 @@ export default function RoleFormPage() {
               label={t('role_name')}
               placeholder={t('enter_role_name')}
               rules={{ required: t('role_name_required') }}
-              required
-            />
-
-            <FormInput
-              name="guardName"
-              control={control}
-              label={t('guard_name')}
-              placeholder={t('enter_guard_name')}
-              rules={{ required: t('guard_name_required') }}
               required
             />
           </div>

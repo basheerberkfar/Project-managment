@@ -35,7 +35,8 @@ export type RoleDto = {
 
 export type CreateRoleDto = {
   name: string;
-  guardName: string;
+  guardName?: string;
+  PermissionIds?: string[];
 };
 
 export type UpdateRoleDto = Partial<CreateRoleDto>;

@@ -10,6 +10,7 @@ export type SidebarSchemaItem = {
 
 const IMPLEMENTED_PROTECTED_LINKS = new Set([
   '/dashboard',
+  '/clients-list',
   '/products',
   '/users-roles/users',
   '/users-roles/roles',
