@@ -18,8 +18,7 @@ export const rolesService = {
   getOne: (id: number | string) =>
     api.get<ApiDetailResponse<RoleDto>>(ROUTE.GET_ONE(id)),
 
-  getPermissions: (id: number | string) =>
-    api.get<ApiDetailResponse<unknown>>(ROUTE.GET_PERMISSIONS(id)),
+  getPermissions: () => api.get<ApiDetailResponse<unknown>>(ROUTE.GET_PERMISSIONS),
 
   create: (data: CreateRoleDto) => api.post(ROUTE.POST, data),
 

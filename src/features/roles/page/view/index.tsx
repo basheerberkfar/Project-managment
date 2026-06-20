@@ -10,6 +10,7 @@ import { PERMISSION_ACTIONS, PERMISSION_GROUPS } from '@/constants/permissions';
 import { RoleViewSkeleton } from '@/features/roles/components/role-view-skeleton';
 import { useToast } from '@/components/ui/toast';
 import {
+  normalizeRolePermissionIds,
   useDeleteRoleMutation,
   useRolePermissionsQuery,
   useRoleQuery,
@@ -34,7 +35,7 @@ export default function RoleViewPage() {
 
   const { data: role, isLoading } = useRoleQuery(decodedId);
   const { data: permissionsData, isLoading: isPermissionsLoading } =
-    useRolePermissionsQuery(decodedId);
+    useRolePermissionsQuery();
   const { mutate: deleteRole, isPending: isDeleting } = useDeleteRoleMutation();
   const canEdit = hasPermission(
     PERMISSION_GROUPS.roles,
@@ -121,7 +122,9 @@ export default function RoleViewPage() {
 
       <RolePermissionsSection
         groups={permissionsData?.groups ?? []}
-        selectedPermissions={permissionsData?.selectedIds ?? []}
+        selectedPermissions={normalizeRolePermissionIds(
+          role?.permissions ?? role?.permission
+        )}
         readOnly
       />
 

@@ -27,6 +27,8 @@ export type RoleDto = {
   guardName: string;
   isAdmin?: boolean;
   isDefault?: boolean;
+  permissions?: unknown;
+  permission?: unknown;
   createdAt?: string;
   updatedAt?: string;
 };

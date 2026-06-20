@@ -1,3 +1,4 @@
+import { extractApiList } from '@/types/apis';
 import type {
   RolePermissionDto,
   RolePermissionGroupDto,
@@ -322,6 +323,16 @@ const normalizePermissionArrayEntry = (
 export const normalizeRolePermissionGroups = (
   payload: unknown
 ): RolePermissionGroupDto[] => {
+  const listSource = extractApiList<Record<string, unknown>>(payload);
+
+  if (listSource.length) {
+    const permissions = listSource
+      .map((item) => normalizePermissionArrayEntry(item))
+      .filter((item): item is RolePermissionDto => Boolean(item));
+
+    return normalizePermissionGroupArray(permissions);
+  }
+
   const source =
     payload && typeof payload === 'object'
       ? ((payload as { data?: unknown; result?: unknown }).data ??
@@ -367,6 +378,17 @@ export const normalizeRolePermissionGroups = (
 
 export const normalizeRolePermissionIds = (payload: unknown): string[] => {
   if (!payload) return [];
+
+  const listSource = extractApiList<Record<string, unknown>>(payload);
+  if (listSource.length) {
+    return listSource.flatMap((item) => {
+      if (item.id != null) {
+        return [String(item.id)];
+      }
+
+      return [];
+    });
+  }
 
   if (Array.isArray(payload)) {
     return payload.flatMap((item) => {

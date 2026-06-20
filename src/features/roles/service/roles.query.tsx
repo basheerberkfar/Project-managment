@@ -8,7 +8,6 @@ import { rolesKeys } from './roles.keys';
 import { rolesService } from './roles.endpoints';
 import {
   normalizeRolePermissionGroups,
-  normalizeRolePermissionIds,
 } from './roles.permissions';
 import type {
   RoleDto,
@@ -40,14 +39,13 @@ export const useRoleQuery = (id: number | string) =>
     select: (res) => extractApiItem<RoleDto>(res.data),
   });
 
-export const useRolePermissionsQuery = (id: number | string) =>
+export const useRolePermissionsQuery = () =>
   useQuery({
-    queryKey: rolesKeys.permissions(id),
-    queryFn: () => rolesService.getPermissions(id),
-    enabled: Boolean(id),
+    queryKey: rolesKeys.permissions(),
+    queryFn: () => rolesService.getPermissions(),
     select: (res): RolePermissionsQueryResult => ({
       groups: normalizeRolePermissionGroups(res.data),
-      selectedIds: normalizeRolePermissionIds(res.data),
+      selectedIds: [],
       raw: res.data,
     }),
   });
@@ -95,7 +93,7 @@ export const useUpdateRolePermissionsMutation = () => {
     }) => rolesService.updatePermissions(id, data),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({
-        queryKey: rolesKeys.permissions(id),
+        queryKey: rolesKeys.permissions(),
       });
       queryClient.invalidateQueries({
         queryKey: rolesKeys.detail(id),

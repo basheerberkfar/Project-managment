@@ -3,6 +3,5 @@ export const rolesKeys = {
   lists: () => [...rolesKeys.all, 'list'] as const,
   list: (filters?: object) => [...rolesKeys.lists(), filters] as const,
   detail: (id: number | string) => [...rolesKeys.all, 'detail', id] as const,
-  permissions: (id: number | string) =>
-    [...rolesKeys.all, 'permissions', id] as const,
+  permissions: () => [...rolesKeys.all, 'permissions'] as const,
 };

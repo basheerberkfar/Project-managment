@@ -4,6 +4,6 @@ export const ROUTE = {
   GET_ONE: (id: number | string) => `/Roles/${id}`,
   UPDATE: (id: number | string) => `/Roles/${id}`,
   DELETE: (id: number | string) => `/Roles/${id}`,
-  GET_PERMISSIONS: (id: number | string) => `Roles/${id}/permissions`,
+  GET_PERMISSIONS: '/Permissions',
   UPDATE_PERMISSIONS: (id: number | string) => `Roles/${id}/permissions`,
 };

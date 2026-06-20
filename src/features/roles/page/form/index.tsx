@@ -8,6 +8,7 @@ import SectionCard from '@/components/ui/section-card';
 import FormInput from '@/components/ui/formInput';
 import { useToast } from '@/components/ui/toast';
 import { handleFormErrors } from '@/utils/form-errors';
+import { extractApiItem } from '@/types/apis';
 import RolePageActions from '@/features/roles/components/role-page-actions';
 import RolePermissionsSection from '@/features/roles/components/role-permissions-section';
 import { RoleFormSkeleton } from '@/features/roles/components/role-form-skeleton';
@@ -34,7 +35,7 @@ export default function RoleFormPage() {
   const decodedId = isEdit ? decodeRouteId(routeId) : '';
   const { data: role, isLoading } = useRoleQuery(decodedId);
   const { data: permissionsData, isLoading: isPermissionsLoading } =
-    useRolePermissionsQuery(decodedId);
+    useRolePermissionsQuery();
   const { mutateAsync: createRole, isPending: isCreating } =
     useCreateRoleMutation();
   const { mutateAsync: updateRole, isPending: isUpdating } =
@@ -44,8 +45,13 @@ export default function RoleFormPage() {
     isPending: isUpdatingPermissions,
   } = useUpdateRolePermissionsMutation();
   const schema = useMemo(() => getRoleSchema(t), [t]);
-  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
+  const [selectedPermissionsState, setSelectedPermissionsState] = useState<
+    string[]
+  >([]);
   const [permissionsTouched, setPermissionsTouched] = useState(false);
+  const selectedPermissions = permissionsTouched
+    ? selectedPermissionsState
+    : normalizeRolePermissionIds(role?.permissions ?? role?.permission);
 
   const {
     control,
@@ -71,13 +77,6 @@ export default function RoleFormPage() {
     });
   }, [reset, role]);
 
-  useEffect(() => {
-    if (!permissionsData) return;
-
-    setSelectedPermissions(normalizeRolePermissionIds(permissionsData.raw));
-    setPermissionsTouched(false);
-  }, [permissionsData]);
-
   const onSubmit = async (values: RoleFormValues) => {
     const payload: CreateRoleDto = {
       name: values.name.trim(),
@@ -101,6 +100,20 @@ export default function RoleFormPage() {
         });
       } else {
         response = await createRole(payload);
+
+        const createdRole = extractApiItem<{ id?: string | number }>(
+          (response as { data?: unknown })?.data
+        );
+        const createdRoleId = createdRole?.id;
+
+        if (createdRoleId && selectedPermissions.length) {
+          await updateRolePermissions({
+            id: createdRoleId,
+            data: {
+              permission_ids: selectedPermissions,
+            },
+          });
+        }
       }
 
       showToast({
@@ -128,14 +141,14 @@ export default function RoleFormPage() {
     }
   };
 
-  if (isLoading || (isEdit && isPermissionsLoading)) {
+  if ((isEdit && isLoading) || isPermissionsLoading) {
     return <RoleFormSkeleton />;
   }
 
   const canSubmit =
     isEdit
       ? isValid && (isDirty || permissionsTouched)
-      : isValid && isDirty;
+      : isValid && (isDirty || permissionsTouched);
 
   return (
     <FormPageContainer onSubmit={handleSubmit(onSubmit)}>
@@ -171,22 +184,14 @@ export default function RoleFormPage() {
           </div>
         </SectionCard>
 
-        {isEdit ? (
-          <RolePermissionsSection
-            groups={permissionsData?.groups ?? []}
-            selectedPermissions={selectedPermissions}
-            onChange={(permissionIds) => {
-              setSelectedPermissions(permissionIds);
-              setPermissionsTouched(true);
-            }}
-          />
-        ) : (
-          <SectionCard title={t('permissions')}>
-            <p className="text-sm text-gray-light-700 dark:text-gray-dark-200">
-              {t('save_role_first_to_manage_permissions')}
-            </p>
-          </SectionCard>
-        )}
+        <RolePermissionsSection
+          groups={permissionsData?.groups ?? []}
+          selectedPermissions={selectedPermissions}
+          onChange={(permissionIds) => {
+            setSelectedPermissionsState(permissionIds);
+            setPermissionsTouched(true);
+          }}
+        />
       </>
     </FormPageContainer>
   );
