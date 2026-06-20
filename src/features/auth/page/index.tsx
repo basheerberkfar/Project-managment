@@ -120,9 +120,6 @@ const SplitLayout: React.FC = () => {
             <h3 className="dark:text-[var(--color-dark-primary)] text-[var(--color-light-text-primary)] text-[1.5rem] font-medium">
               {t('right-side.title')}
             </h3>
-            <p className="dark:text-[var(--color-dark-secondary)] text-[var(--color-light-text-secondary)] text-[1rem]">
-              {t('right-side.subtitle')}
-            </p>
             <FormInput
               name="email"
               placeholder={t('right-side.email')}

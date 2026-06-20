@@ -81,20 +81,7 @@ export const SIDEBAR_SCHEMA: SidebarSchemaItem[] = [
         link: '/clients-list',
         permissionNames: ['clients.view'],
       },
-      {
-        key: 'clients-groups',
-        labelKey: 'clients-groups',
-        link: '/client_groups',
-        permissionNames: ['client_groups.view'],
-      },
     ],
-  },
-
-  {
-    key: 'products',
-    labelKey: 'products',
-    link: '/products',
-    permissionNames: ['products.view'],
   },
 ];
 
@@ -189,8 +176,7 @@ export const getSidebarPermissionContext = () => {
 
   const isAdmin = storedUser?.is_admin === 1;
   const isLegacyAdmin =
-    legacyUser?.is_admin === 1 ||
-    legacyUser?.isAdmin === true;
+    legacyUser?.is_admin === 1 || legacyUser?.isAdmin === true;
 
   return {
     permissionNames,
@@ -255,7 +241,7 @@ export const getFirstSidebarLink = (
   return null;
 };
 
-export const getFirstAccessibleSidebarLink = () => {          
+export const getFirstAccessibleSidebarLink = () => {
   const { permissionNames, isAdmin } = getSidebarPermissionContext();
   const visibleItems = filterSidebarSchema(
     SIDEBAR_SCHEMA,
@@ -264,14 +250,16 @@ export const getFirstAccessibleSidebarLink = () => {
   );
 
   const firstImplementedLink = getFirstSidebarLink(
-    visibleItems.map((item) => ({
-      ...item,
-      children: item.children?.filter(
-        (child) =>
-          !child.link || IMPLEMENTED_PROTECTED_LINKS.has(child.link)
-      ),
-    }))
-      .filter((item) => !item.link || IMPLEMENTED_PROTECTED_LINKS.has(item.link))
+    visibleItems
+      .map((item) => ({
+        ...item,
+        children: item.children?.filter(
+          (child) => !child.link || IMPLEMENTED_PROTECTED_LINKS.has(child.link)
+        ),
+      }))
+      .filter(
+        (item) => !item.link || IMPLEMENTED_PROTECTED_LINKS.has(item.link)
+      )
   );
 
   return firstImplementedLink ?? '/dashboard';

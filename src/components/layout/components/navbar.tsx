@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import usePageTitle from '@/hooks/usePageTitle';
 import SidebarCollapsedIcon from '@/assets/svgs/sidebar/sidebar-collapsed-icon.svg';
-import LogoDark from '@/assets/svgs/sidebar/sidebar-logo.svg';
-import LogoLight from '@/assets/svgs/sidebar/white-sidebar-logo.svg';
+import LogoDark from '@/assets/svgs/sidebar/sidebar-logo.png';
+import LogoLight from '@/assets/svgs/sidebar/sidebar-logo.png';
 import ReactHead from '@theprojectsx/react-head';
 import { BellRinging, Gear, Sun, Moon, List } from '@phosphor-icons/react';
 import NavbarItemContainer from './navbar-item-container';
@@ -110,24 +110,6 @@ const Navbar: React.FC<NavbarProps> = ({
               isCollapsed && !isMobile ? 'w-8' : 'w-8 md:w-auto'
             )}
           />
-
-          {(!isCollapsed || isMobile) && (
-            <h1
-              className={clsx(
-                'text-[0.875rem] font-bold uppercase ml-2 hidden sm:block',
-                isMobile
-                  ? 'text-primary-light-800 dark:text-white'
-                  : 'text-white'
-              )}
-            >
-              <span className="block !font-Playfair text-[10px] md:text-xs">
-                Secnt
-              </span>
-              <span className="block !font-Playfair text-[10px] md:text-xs">
-                World
-              </span>
-            </h1>
-          )}
 
           {!isMobile && (
             <img

@@ -10,8 +10,6 @@ const Login = lazy(() => import('@/features/auth/page'));
 const Dashboard = lazy(() => import('@/features/dashboard/page'));
 const Clients = lazy(() => import('@/features/clients/page'));
 
-const Products = lazy(() => import('@/features/products/page'));
-const ProductsAction = lazy(() => import('@/features/products/page/form'));
 const NotFound = lazy(() => import('@/features/not-found/page'));
 const Roles = lazy(() => import('@/features/roles/page'));
 const RolesAction = lazy(() => import('@/features/roles/page/form'));
@@ -22,7 +20,6 @@ const DisplayUser = lazy(() => import('@/features/users/page/view'));
 const Departments = lazy(() => import('@/features/departments/page'));
 const JobTitles = lazy(() => import('@/features/job-titles/page'));
 
-const DisplayProduct = lazy(() => import('@/features/products/page/view'));
 const isAuthenticated = () => !!getAuthToken();
 
 const getDefaultProtectedPath = () => getFirstAccessibleSidebarLink();
@@ -75,19 +72,6 @@ export const protectedRoutes: Routes[] = [
       </ProtectedRoute>
     ),
     children: [{ path: '', element: <Clients /> }],
-  },
-  {
-    path: '/products',
-    element: (
-      <ProtectedRoute>
-        <DashboardLayout />
-      </ProtectedRoute>
-    ),
-    children: [
-      { path: '', element: <Products /> },
-      { path: ':id', element: <ProductsAction /> },
-      { path: ':id/display', element: <DisplayProduct /> },
-    ],
   },
   {
     path: '/users-roles',

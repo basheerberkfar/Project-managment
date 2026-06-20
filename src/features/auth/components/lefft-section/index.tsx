@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import Logo from '@/assets/svgs/auth/auth-primary-logo.svg';
+import Logo from '@/assets/svgs/sidebar/sidebar-logo.png';
 
 const LoginLeftSection = () => {
   const { t } = useTranslation('auth');
@@ -11,10 +11,7 @@ const LoginLeftSection = () => {
       {/* Optional Content */}
       <div className="relative flex flex-col z-10 h-screen items-center justify-center text-white p-8">
         <div className="flex items-center gap-2.5">
-          <img src={Logo} alt="logo" />
-          <p className="!font-Playfair tracking-widest uppercase leading-[100%] font-bold text-[.875rem]">
-            Secnt World
-          </p>
+          <img src={Logo} alt="logo" className="w-45" />
         </div>
         <h2 className="text-[2.125rem] font-semibold text-center">
           {t('left-side.title')}

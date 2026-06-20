@@ -1,7 +1,8 @@
 import { useUIStore } from '@/store/ui.store';
 import { Moon, Sun } from '@phosphor-icons/react';
 import { useMemo } from 'react';
-import Logo from '@/assets/svgs/auth/auth-primary-logo.svg';
+import Logo from '@/assets/svgs/sidebar/white-sidebar-logo.png';
+import WhiteLogo from '@/assets/svgs/sidebar/sidebar-logo.png';
 import NavbarItemContainer from '@/components/layout/components/navbar-item-container';
 import LanguageMenu from '@/components/common/language-menu';
 
@@ -27,7 +28,11 @@ const AnonymsNavbar = () => {
   );
   return (
     <div className="flex items-center border dark:border-dark-card-border border-light-card-border justify-between w-full h-fit py-3.5 px-8">
-      <img src={Logo} alt="logo" />
+      <img
+        src={theme === 'dark' ? WhiteLogo : Logo}
+        alt="logo"
+        className="w-30 h-10"
+      />
       <div className="flex items-center gap-2">
         {navbarGroups.map((group, groupIndex) => (
           <NavbarItemContainer
