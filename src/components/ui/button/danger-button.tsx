@@ -28,7 +28,7 @@ const DangerButton = ({
   icon,
   children,
   isLoading,
-  IconSize = 20,
+  IconSize = 16,
   disabled,
   ...props
 }: DangerButtonProps) => {

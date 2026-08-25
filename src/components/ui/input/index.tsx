@@ -1,4 +1,5 @@
 import React from 'react';
+import { UploadSimple } from '@phosphor-icons/react';
 import {
   Controller,
   type Control,
@@ -7,6 +8,7 @@ import {
   type PathValue,
 } from 'react-hook-form';
 import clsx from 'clsx';
+import { useTranslation } from 'react-i18next';
 import { addEveryThreeDigits } from '@/utils/helpers';
 export interface InputProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -43,15 +45,10 @@ const Input = <TFieldValues extends FieldValues = FieldValues>({
   defaultValue,
   ...props
 }: InputProps<TFieldValues>) => {
+  const { t } = useTranslation('common');
   const [isFocused, setIsFocused] = React.useState(false);
   const [internalValue, setInternalValue] = React.useState(value ?? '');
-
-  // Keep internal value in sync with prop value
-  React.useEffect(() => {
-    if (value !== undefined) {
-      setInternalValue(value);
-    }
-  }, [value]);
+  const fileInputId = React.useId();
 
   const effectiveValue = value !== undefined ? value : internalValue;
 
@@ -67,6 +64,98 @@ const Input = <TFieldValues extends FieldValues = FieldValues>({
     const hasValueLocal =
       inputValue !== undefined && inputValue !== '' && inputValue !== null;
     const shouldFloatLocal = isFocused || hasValueLocal;
+
+    if (type === 'file') {
+      const selectedFileName =
+        typeof internalValue === 'string' && internalValue
+          ? internalValue
+          : t('no_file_chosen');
+
+      return (
+        <div className={clsx('w-full', wrapperClassName)}>
+          <div className="relative group">
+            <input
+              {...props}
+              id={props.id ?? fileInputId}
+              name={field?.name ?? name}
+              ref={field?.ref}
+              type="file"
+              disabled={disabled}
+              className="sr-only"
+              onFocus={(event) => {
+                setIsFocused(true);
+                props.onFocus?.(event);
+              }}
+              onBlur={(event) => {
+                setIsFocused(false);
+                props.onBlur?.(event);
+                field?.onBlur?.();
+              }}
+              onChange={(event) => {
+                const selectedFile = event.target.files?.[0] ?? null;
+                setInternalValue(selectedFile?.name ?? '');
+                if (isRHF) {
+                  field?.onChange?.(selectedFile);
+                } else {
+                  props.onChange?.(event);
+                }
+              }}
+            />
+            <label
+              htmlFor={props.id ?? fileInputId}
+              className={clsx(
+                'flex min-h-[72px] w-full cursor-pointer items-center gap-3 rounded-lg border border-dashed px-4 py-3 transition-all duration-200',
+                'bg-white text-gray-light-900 dark:bg-dark-card-background dark:text-white',
+                disabled &&
+                  'cursor-not-allowed bg-light-surface-disabled opacity-60 dark:bg-dark-surface-disabled',
+                error
+                  ? 'border-danger-500 ring-1 ring-danger-500/30'
+                  : isFocused
+                    ? 'border-(--color-focus-primary) ring-1 ring-(--color-focus-primary)/20'
+                    : 'border-gray-light-500 hover:border-gray-light-600 dark:border-dark-card-border dark:hover:border-gray-dark-700',
+                className
+              )}
+            >
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-gray-light-100 text-primary-light-500 dark:bg-dark-card-surface dark:text-primary-dark-300">
+                <UploadSimple size={22} />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-medium">
+                  {selectedFileName}
+                </span>
+                <span className="mt-1 block truncate text-xs text-light-text-secondary dark:text-dark-secondary">
+                  {t('choose_file')}
+                </span>
+              </span>
+            </label>
+
+            {label && (
+              <span
+                className={clsx(
+                  'absolute start-3 top-0 z-20 -translate-y-1/2 bg-white px-1.5 text-xs font-medium transition-colors dark:bg-dark-card-background',
+                  error
+                    ? 'text-danger-500'
+                    : isFocused
+                      ? 'text-(--color-focus-primary)'
+                      : 'text-gray-light-700 dark:text-gray-dark-500'
+                )}
+              >
+                {label}
+                {props.required && (
+                  <span className="ms-1 text-danger-500">*</span>
+                )}
+              </span>
+            )}
+          </div>
+
+          {error && (
+            <p className="mt-1.5 text-xs text-danger-500 font-medium ps-1 animate-in fade-in slide-in-from-top-1">
+              {error}
+            </p>
+          )}
+        </div>
+      );
+    }
 
     const formattedValue =
       type === 'number'

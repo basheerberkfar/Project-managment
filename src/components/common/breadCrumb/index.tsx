@@ -21,13 +21,13 @@ const BreadCrumb: React.FC<BreadCrumbProps> = ({
 }) => {
   return (
     <div
-      className={`flex transition-all duration-300 items-center justify-between dark:border-dark-card-border border-white pb-2 -mx-8 px-8 ${
+      className={`flex min-w-0 flex-wrap items-center justify-between gap-3 overflow-hidden pb-2 transition-all duration-300 dark:border-dark-card-border border-white ${
         sticky
           ? 'sticky -top-8 z-30 pt-6 mb-2 bg-gray-light-100 dark:bg-dark-sidebar shadow-[0_1px_0_0_rgba(0,0,0,0.05)] dark:shadow-[0_1px_0_0_rgba(255,255,255,0.06)] isolate'
           : 'border-b'
       }`}
     >
-      <div className="flex items-center gap-2 text-sm">
+      <div className="flex min-w-0 flex-wrap items-center gap-2 text-sm">
         <Link
           to="/"
           className="hover:text-primary-light-500 dark:hover:text-focus-primary text-gray-light-700 dark:text-gray-dark-500 transition-colors"
@@ -39,18 +39,18 @@ const BreadCrumb: React.FC<BreadCrumbProps> = ({
           const isLast = index === items.length - 1;
 
           return (
-            <div key={index} className="flex items-center gap-2">
+            <div key={index} className="flex min-w-0 items-center gap-2">
               <span className="text-gray-light-700 dark:text-gray-dark-500">
                 /
               </span>
               {isLast ? (
-                <span className="dark:text-focus-primary text-primary-light-500 font-medium">
+                <span className="truncate dark:text-focus-primary text-primary-light-500 font-medium">
                   {item.label}
                 </span>
               ) : item.link ? (
                 <Link
                   to={item.link}
-                  className="hover:text-primary-light-500 dark:hover:text-focus-primary text-gray-light-700 dark:text-gray-dark-500 transition-colors"
+                  className="truncate hover:text-primary-light-500 dark:hover:text-focus-primary text-gray-light-700 dark:text-gray-dark-500 transition-colors"
                 >
                   {item.label}
                 </Link>

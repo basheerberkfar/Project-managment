@@ -1,0 +1,23 @@
+{
+  "chats": "المحادثات",
+  "conversation_count": "{{count}} محادثة",
+  "new_chat": "محادثة جديدة",
+  "search": "البحث في المحادثات",
+  "loading": "جار التحميل...",
+  "untitled_chat": "محادثة دون عنوان",
+  "group_chat": "محادثة جماعية",
+  "direct_chat": "محادثة مباشرة",
+  "back": "رجوع",
+  "participants": "المشاركون",
+  "no_messages": "لا توجد رسائل بعد",
+  "message": "رسالة",
+  "write_message": "اكتب رسالة",
+  "send": "إرسال",
+  "select_chat": "اختر محادثة",
+  "close": "إغلاق",
+  "cancel": "إلغاء",
+  "create": "إنشاء",
+  "chat_name": "اسم المحادثة",
+  "project_optional": "المشروع (اختياري)",
+  "operation_failed": "تعذر إكمال العملية"
+}

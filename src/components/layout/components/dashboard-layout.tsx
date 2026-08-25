@@ -52,8 +52,8 @@ const DashboardLayout = () => {
           />
         )}
 
-        <main className="flex-1 flex flex-col h-full overflow-hidden dark:bg-dark-sidebar bg-gray-light-100 text-nature-black">
-          <section className="flex-1 flex flex-col w-full h-full px-4 md:px-8 py-6 overflow-y-auto">
+        <main className="flex-1 flex flex-col h-full overflow-hidden dark:bg-dark-sidebar bg-gray-light-100 text-nature-black dark:text-white">
+          <section className="flex-1 flex flex-col w-full h-full px-3 py-6 md:px-4 overflow-y-auto">
             <Outlet />
           </section>
         </main>

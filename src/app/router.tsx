@@ -19,6 +19,14 @@ const UsersAction = lazy(() => import('@/features/users/page/form'));
 const DisplayUser = lazy(() => import('@/features/users/page/view'));
 const Departments = lazy(() => import('@/features/departments/page'));
 const JobTitles = lazy(() => import('@/features/job-titles/page'));
+const Projects = lazy(() => import('@/features/projects/page'));
+const Finance = lazy(() => import('@/features/finance/page'));
+const BillForm = lazy(() => import('@/features/finance/page/bill-form'));
+const Renewals = lazy(() => import('@/features/finance/page/renewals'));
+const Settings = lazy(() => import('@/features/settings/page'));
+const Management = lazy(() => import('@/features/management/page'));
+const CvAnalysis = lazy(() => import('@/features/cv-analysis/page'));
+const Chats = lazy(() => import('@/features/chats/page'));
 
 const isAuthenticated = () => !!getAuthToken();
 
@@ -72,6 +80,90 @@ export const protectedRoutes: Routes[] = [
       </ProtectedRoute>
     ),
     children: [{ path: '', element: <Clients /> }],
+  },
+  {
+    path: '/projects',
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout />
+      </ProtectedRoute>
+    ),
+    children: [
+      { path: '', element: <Projects /> },
+      { path: ':id', element: <Projects /> },
+    ],
+  },
+  {
+    path: '/bills',
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout />
+      </ProtectedRoute>
+    ),
+    children: [{ path: '', element: <Finance type="bills" /> }],
+  },
+  {
+    path: '/bonds',
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout />
+      </ProtectedRoute>
+    ),
+    children: [{ path: '', element: <Finance type="bonds" /> }],
+  },
+  {
+    path: '/renewal',
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout />
+      </ProtectedRoute>
+    ),
+    children: [{ path: '', element: <Renewals /> }],
+  },
+  {
+    path: '/action-bill',
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout />
+      </ProtectedRoute>
+    ),
+    children: [{ path: '', element: <BillForm /> }],
+  },
+  {
+    path: '/settings',
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout />
+      </ProtectedRoute>
+    ),
+    children: [{ path: '', element: <Settings /> }],
+  },
+  {
+    path: '/chats',
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout />
+      </ProtectedRoute>
+    ),
+    children: [{ path: '', element: <Chats /> }],
+  },
+  {
+    path: '/cv-analysis',
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout />
+      </ProtectedRoute>
+    ),
+    children: [{ path: '', element: <CvAnalysis /> }],
+  },
+  {
+    path: '/management/:resource',
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout />
+      </ProtectedRoute>
+    ),
+    children: [{ path: '', element: <Management /> }],
   },
   {
     path: '/users-roles',

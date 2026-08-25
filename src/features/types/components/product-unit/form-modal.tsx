@@ -131,7 +131,7 @@ export default function ProductUnitFormModal({
             onClick={handleSubmit(onSubmit)}
             isSubmitting={isSubmitting}
             disabled={isSubmitting}
-            IconSize={14}
+            IconSize={16}
           >
             {t('save')}
           </PrimaryButton>

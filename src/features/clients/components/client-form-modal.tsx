@@ -1,15 +1,17 @@
 import { User } from '@phosphor-icons/react';
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import PhoneCountryInput from '@/components/common/phone-country-input';
 import ModalTitle from '@/components/common/modal-title';
 import Modal from '@/components/ui/dialog';
+import { DateCalendarInput } from '@/components/ui/date-calendar';
 import FormInput from '@/components/ui/formInput';
 import { PrimaryButton, SecondaryButton } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
 import { handleFormErrors } from '@/utils/form-errors';
 import { getApiSuccessMessage } from '@/utils/helpers';
+import { formatApiDate, parseApiDate } from '@/utils/date-value';
 import {
   useClientQuery,
   type ClientFormValues,
@@ -168,14 +170,19 @@ export default function ClientFormModal({
           required
           showErrorOnTouchedOnly={false}
         />
-        <FormInput
+        <Controller
           name="birthday"
           control={control}
-          type="date"
-          label={t('birthday')}
-          placeholder={t('select_birthday')}
-          required
-          showErrorOnTouchedOnly={false}
+          render={({ field, fieldState }) => (
+            <DateCalendarInput
+              label={t('birthday')}
+              placeholder={t('select_birthday')}
+              required
+              error={fieldState.error?.message}
+              value={parseApiDate(field.value)}
+              onChange={(date) => field.onChange(formatApiDate(date))}
+            />
+          )}
         />
       </div>
     </Modal>

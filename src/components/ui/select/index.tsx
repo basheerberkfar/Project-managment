@@ -110,20 +110,6 @@ const getMultiOptions = (
   return value ? [value] : [];
 };
 
-const areSelectValuesEqual = (
-  a?: SelectOption | SelectOption[] | null,
-  b?: SelectOption | SelectOption[] | null
-) => {
-  const aList = Array.isArray(a) ? a : a ? [a] : [];
-  const bList = Array.isArray(b) ? b : b ? [b] : [];
-
-  if (aList.length !== bList.length) return false;
-
-  return aList.every(
-    (item, index) => String(item.value) === String(bList[index]?.value)
-  );
-};
-
 const Control = ({
   children,
   ...props
@@ -314,24 +300,6 @@ const SelectInput = ({
   const direction = i18n.language === 'ar' ? 'rtl' : 'ltr';
   const portalTarget =
     typeof window !== 'undefined' ? document.body : undefined;
-
-  React.useEffect(() => {
-    if (value === undefined) return;
-
-    setInternalValue((prev) => {
-      if (areSelectValuesEqual(prev, value)) {
-        return prev;
-      }
-
-      return value;
-    });
-  }, [value]);
-
-  React.useEffect(() => {
-    if (inputValue !== undefined) {
-      setInternalInputValue(inputValue);
-    }
-  }, [inputValue]);
 
   const effectiveValue = value !== undefined ? value : internalValue;
   const effectiveOpen = menuIsOpen ?? isOpenInternal;

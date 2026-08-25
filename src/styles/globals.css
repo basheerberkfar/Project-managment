@@ -167,6 +167,10 @@
     --scrollbar-thumb-hover: var(--color-primary-dark-400);
   }
 
+  .dark body {
+    color: #fff;
+  }
+
   /* Global scrollbar styling - theme aware */
   * {
     scrollbar-width: thin;

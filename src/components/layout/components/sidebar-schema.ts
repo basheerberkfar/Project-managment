@@ -12,6 +12,14 @@ const IMPLEMENTED_PROTECTED_LINKS = new Set([
   '/dashboard',
   '/clients-list',
   '/products',
+  '/bills',
+  '/bonds',
+  '/renewal',
+  '/projects',
+  '/settings',
+  '/management/alerts',
+  '/cv-analysis',
+  '/chats',
   '/users-roles/users',
   '/users-roles/roles',
   '/users-roles/departments',
@@ -81,7 +89,121 @@ export const SIDEBAR_SCHEMA: SidebarSchemaItem[] = [
         link: '/clients-list',
         permissionNames: ['clients.view'],
       },
+      {
+        key: 'cv-analysis',
+        labelKey: 'cv-analysis',
+        link: '/cv-analysis',
+        permissionNames: ['users.view'],
+      },
     ],
+  },
+  {
+    key: 'financial',
+    labelKey: 'financial',
+    children: [
+      {
+        key: 'bills',
+        labelKey: 'bills',
+        link: '/bills',
+        permissionNames: ['bills.view'],
+      },
+      {
+        key: 'bonds',
+        labelKey: 'bonds',
+        link: '/bonds',
+        permissionNames: ['bonds.view'],
+      },
+      {
+        key: 'renewals',
+        labelKey: 'renewals',
+        link: '/renewal',
+        permissionNames: ['project_renewals.view'],
+      },
+    ],
+  },
+  {
+    key: 'projects',
+    labelKey: 'projects',
+    children: [
+      {
+        key: 'projects-list',
+        labelKey: 'projects-list',
+        link: '/projects',
+        permissionNames: ['projects.view'],
+      },
+    ],
+  },
+  {
+    key: 'communications',
+    labelKey: 'communications',
+    children: [
+      {
+        key: 'alerts',
+        labelKey: 'alerts',
+        link: '/management/alerts',
+        permissionNames: ['alerts.view'],
+      },
+      {
+        key: 'chats',
+        labelKey: 'chats',
+        link: '/chats',
+        permissionNames: ['chats.view'],
+      },
+      {
+        key: 'notes',
+        labelKey: 'notes',
+        link: '/management/notes',
+        permissionNames: ['notes.view'],
+      },
+      {
+        key: 'occasions',
+        labelKey: 'occasions',
+        link: '/management/occasions',
+        permissionNames: ['occasions.view'],
+      },
+    ],
+  },
+  {
+    key: 'customer-relations',
+    labelKey: 'customer-relations',
+    children: [
+      {
+        key: 'customers',
+        labelKey: 'customers',
+        link: '/management/customers',
+        permissionNames: ['customers.view'],
+      },
+      {
+        key: 'quotations',
+        labelKey: 'quotations',
+        link: '/management/quotations',
+        permissionNames: ['quotations.view'],
+      },
+    ],
+  },
+  {
+    key: 'task-operations',
+    labelKey: 'task-operations',
+    children: [
+      {
+        key: 'task-disbursements',
+        labelKey: 'task-disbursements',
+        link: '/management/task-disbursements',
+        permissionNames: ['task_disbursements.view'],
+      },
+      {
+        key: 'tags',
+        labelKey: 'tags',
+        link: '/management/tags',
+        permissionNames: ['tags.view'],
+      },
+    ],
+  },
+  {
+    key: 'settings',
+    labelKey: 'settings',
+    link: '/settings',
+    permissionNames: ['settings.view'],
   },
 ];
 
@@ -190,6 +312,16 @@ const hasItemPermission = (
   isAdmin: boolean
 ) => {
   if (isAdmin) return true;
+  if (['financial', 'bills', 'bonds', 'renewals'].includes(item.key))
+    return true;
+  if (item.key === 'projects' || item.key === 'projects-list') return true;
+  if (
+    item.link?.startsWith('/management/') ||
+    ['communications', 'customer-relations', 'task-operations'].includes(
+      item.key
+    )
+  )
+    return true;
   if (item.key === 'dashboard') {
     return permissionNames.size > 0;
   }

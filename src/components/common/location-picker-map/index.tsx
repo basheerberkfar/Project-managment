@@ -170,7 +170,7 @@ export default function LocationPickerMap<T extends FieldValues>({
           <PrimaryButton
             type="button"
             icon={<Crosshair size={12} weight="bold" />}
-            IconSize={14}
+            IconSize={16}
             onClick={() => {
               if (typeof navigator === 'undefined' || !navigator.geolocation) {
                 return;

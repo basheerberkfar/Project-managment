@@ -140,6 +140,8 @@ const AsyncSelectInput = ({
     if (props.isDisabled) return;
 
     pageRef.current = 1;
+    // Async option loading intentionally synchronizes this component with the API.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void loadOptions(1, search, true);
   }, [loadOptions, props.isDisabled, search]);
 

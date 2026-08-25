@@ -28,6 +28,8 @@
   "pagination-next": "Next",
   "pagination-prev": "Prev",
   "select": "Select",
+  "choose_file": "Choose file",
+  "no_file_chosen": "Drop a file here or browse",
   "catch": "Receipt",
   "payment": "Payment",
   "yes": "Yes",

@@ -10,7 +10,20 @@ i18n.use(initReactI18next).init({
   lng: savedLanguage,
   fallbackLng: 'en',
 
-  ns: ['common', 'sidebar', 'auth', 'clients', 'products', 'usersRoles'],
+  ns: [
+    'common',
+    'sidebar',
+    'auth',
+    'clients',
+    'products',
+    'usersRoles',
+    'projects',
+    'finance',
+    'management',
+    'chats',
+    'settings',
+    'dashboard',
+  ],
   defaultNS: 'common',
 
   interpolation: {

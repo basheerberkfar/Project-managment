@@ -20,7 +20,7 @@ export default function PrimaryButton({
   disabled,
   type,
   isSubmitting,
-  IconSize,
+  IconSize = 16,
   onClick,
   ...props
 }: PrimaryButtonProps) {

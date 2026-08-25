@@ -1,0 +1,23 @@
+{
+  "chats": "Chats",
+  "conversation_count": "{{count}} conversations",
+  "new_chat": "New chat",
+  "search": "Search conversations",
+  "loading": "Loading...",
+  "untitled_chat": "Untitled chat",
+  "group_chat": "Group chat",
+  "direct_chat": "Direct conversation",
+  "back": "Back",
+  "participants": "Participants",
+  "no_messages": "No messages yet",
+  "message": "Message",
+  "write_message": "Write a message",
+  "send": "Send",
+  "select_chat": "Select a conversation",
+  "close": "Close",
+  "cancel": "Cancel",
+  "create": "Create",
+  "chat_name": "Chat name",
+  "project_optional": "Project (optional)",
+  "operation_failed": "The operation could not be completed"
+}

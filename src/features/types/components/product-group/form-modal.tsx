@@ -243,7 +243,7 @@ export default function ProductGroupFormModal({
             onClick={handleSubmit(onSubmit)}
             isSubmitting={isSubmitting}
             disabled={isSubmitting}
-            IconSize={14}
+            IconSize={16}
           >
             {t('save')}
           </PrimaryButton>

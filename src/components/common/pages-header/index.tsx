@@ -41,7 +41,7 @@ const PagesHeader = ({
             icon={btnIcon || <Plus size={14} />}
             isSubmitting={btnLoading}
             disabled={primaryDisabled}
-            IconSize={14}
+            IconSize={16}
             onClick={onClick}
           >
             {btnText}

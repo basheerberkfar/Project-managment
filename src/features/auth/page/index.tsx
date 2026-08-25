@@ -139,7 +139,7 @@ const SplitLayout: React.FC = () => {
               className={clsx('p-[12px] w-full h-[44px]')}
               variant="solid"
               type="submit"
-              IconSize={20}
+              IconSize={16}
               isSubmitting={isSubmitting}
               disabled={isSubmitting}
             >

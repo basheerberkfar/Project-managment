@@ -39,13 +39,6 @@ const Textarea = <TFieldValues extends FieldValues = FieldValues>({
   const [isFocused, setIsFocused] = React.useState(false);
   const [internalValue, setInternalValue] = React.useState(value ?? '');
 
-  // Keep internal value in sync with prop value
-  React.useEffect(() => {
-    if (value !== undefined) {
-      setInternalValue(value);
-    }
-  }, [value]);
-
   const effectiveValue = value !== undefined ? value : internalValue;
 
   const renderTextarea = (field?: {

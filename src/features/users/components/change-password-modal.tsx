@@ -117,7 +117,7 @@ export default function ChangePasswordModal({
             onClick={handleSubmit(onSubmit)}
             isSubmitting={isPending}
             disabled={isPending}
-            IconSize={14}
+            IconSize={16}
           >
             {t('change_password')}
           </PrimaryButton>

@@ -49,7 +49,7 @@ const ConfirmModal: React.FC<ConfirmModalType> = ({
           <PrimaryButton
             onClick={onConfirm}
             isSubmitting={isLoading}
-            IconSize={18}
+            IconSize={16}
           >
             {t('confirm')}
           </PrimaryButton>

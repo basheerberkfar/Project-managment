@@ -28,6 +28,8 @@
   "pagination-next": "التالي",
   "pagination-prev": "السابق",
   "select": "اختر",
+  "choose_file": "اختر ملفاً",
+  "no_file_chosen": "اسحب الملف هنا أو تصفح",
   "catch": "قبض",
   "payment": "دفع",
   "yes": "نعم",
