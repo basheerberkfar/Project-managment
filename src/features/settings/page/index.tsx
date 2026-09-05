@@ -438,12 +438,8 @@ export default function SettingsPage() {
 }
 
 const referenceResources = [
-  'cashiers',
-  'professions',
   'states',
   'software-systems',
-  'media',
-  'onesignal-subscriptions',
 ];
 
 function ReferenceDataSettings() {

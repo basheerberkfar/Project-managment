@@ -74,7 +74,7 @@ export default function RoleFormPage() {
   const onSubmit = async (values: RoleFormValues) => {
     const payload: CreateRoleDto = {
       name: values.name.trim(),
-      PermissionIds: selectedPermissions,
+      permissionIds: selectedPermissions,
     };
 
     try {

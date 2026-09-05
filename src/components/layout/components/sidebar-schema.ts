@@ -15,6 +15,7 @@ const IMPLEMENTED_PROTECTED_LINKS = new Set([
   '/bills',
   '/bonds',
   '/renewal',
+  '/management/cashiers',
   '/projects',
   '/settings',
   '/management/alerts',
@@ -119,6 +120,12 @@ export const SIDEBAR_SCHEMA: SidebarSchemaItem[] = [
         link: '/renewal',
         permissionNames: ['project_renewals.view'],
       },
+      {
+        key: 'cashiers',
+        labelKey: 'cashiers',
+        link: '/management/cashiers',
+        permissionNames: ['cashiers.view'],
+      },
     ],
   },
   {
@@ -167,12 +174,6 @@ export const SIDEBAR_SCHEMA: SidebarSchemaItem[] = [
     key: 'customer-relations',
     labelKey: 'customer-relations',
     children: [
-      {
-        key: 'customers',
-        labelKey: 'customers',
-        link: '/management/customers',
-        permissionNames: ['customers.view'],
-      },
       {
         key: 'quotations',
         labelKey: 'quotations',

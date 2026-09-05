@@ -33,6 +33,7 @@ const moduleTranslationKeys: Record<string, string> = {
   bills: 'permission_module_bills',
   bill_types: 'permission_module_bill_types',
   bill_reasons: 'permission_module_bill_reasons',
+  bill_project_features: 'permission_module_bill_project_features',
   bonds: 'permission_module_bonds',
   bond_types: 'permission_module_bond_types',
   permissions: 'permission_module_permissions',

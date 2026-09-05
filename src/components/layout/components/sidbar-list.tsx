@@ -5,18 +5,26 @@ import type { Item } from './types';
 import {
   FolderOpen,
   Bell,
+  Bank,
+  Briefcase,
   ChatCircleDots,
   CalendarDots,
   AddressBook,
+  CurrencyDollar,
   FileText,
   Wrench,
   GearSix,
-  IdentificationCard,
+  HandCoins,
   Kanban,
+  Note,
+  Quotes,
   Receipt,
   Shield,
   SquaresFour,
+  Tag,
+  UserList,
   UsersThree,
+  Wallet,
 } from '@phosphor-icons/react';
 import {
   filterSidebarSchema,
@@ -39,36 +47,39 @@ const SidebarList = ({ isCollapsed, onItemClick }: SidebarListProps) => {
     () => ({
       dashboard: <SquaresFour size={ICON_SIZE} className={ICONS_CLASSNAME} />,
       'users-roles': <Shield size={ICON_SIZE} className={ICONS_CLASSNAME} />,
-      'users-list': <UsersThree size={ICON_SIZE} className={ICONS_CLASSNAME} />,
+      'users-list': <UserList size={ICON_SIZE} className={ICONS_CLASSNAME} />,
       'roles-list': <Shield size={ICON_SIZE} className={ICONS_CLASSNAME} />,
-      'departments-list': (
-        <IdentificationCard size={ICON_SIZE} className={ICONS_CLASSNAME} />
-      ),
-      'job-titles-list': (
-        <IdentificationCard size={ICON_SIZE} className={ICONS_CLASSNAME} />
-      ),
+      'departments-list': <Bank size={ICON_SIZE} className={ICONS_CLASSNAME} />,
+      'job-titles-list': <Briefcase size={ICON_SIZE} className={ICONS_CLASSNAME} />,
       'cv-analysis': <FileText size={ICON_SIZE} className={ICONS_CLASSNAME} />,
       projects: <FolderOpen size={ICON_SIZE} className={ICONS_CLASSNAME} />,
       'projects-list': <Kanban size={ICON_SIZE} className={ICONS_CLASSNAME} />,
-      financial: <Receipt size={ICON_SIZE} className={ICONS_CLASSNAME} />,
+      clients: <AddressBook size={ICON_SIZE} className={ICONS_CLASSNAME} />,
+      'clients-list': <UsersThree size={ICON_SIZE} className={ICONS_CLASSNAME} />,
+      financial: <Wallet size={ICON_SIZE} className={ICONS_CLASSNAME} />,
       bills: <Receipt size={ICON_SIZE} className={ICONS_CLASSNAME} />,
-      bonds: <Receipt size={ICON_SIZE} className={ICONS_CLASSNAME} />,
-      renewals: <Receipt size={ICON_SIZE} className={ICONS_CLASSNAME} />,
+      bonds: <HandCoins size={ICON_SIZE} className={ICONS_CLASSNAME} />,
+      renewals: <CalendarDots size={ICON_SIZE} className={ICONS_CLASSNAME} />,
+      cashiers: <Bank size={ICON_SIZE} className={ICONS_CLASSNAME} />,
       communications: <Bell size={ICON_SIZE} className={ICONS_CLASSNAME} />,
       alerts: <Bell size={ICON_SIZE} className={ICONS_CLASSNAME} />,
       notifications: <Bell size={ICON_SIZE} className={ICONS_CLASSNAME} />,
       chats: <ChatCircleDots size={ICON_SIZE} className={ICONS_CLASSNAME} />,
       messages: <ChatCircleDots size={ICON_SIZE} className={ICONS_CLASSNAME} />,
-      notes: <FileText size={ICON_SIZE} className={ICONS_CLASSNAME} />,
+      notes: <Note size={ICON_SIZE} className={ICONS_CLASSNAME} />,
       occasions: <CalendarDots size={ICON_SIZE} className={ICONS_CLASSNAME} />,
       'customer-relations': (
         <AddressBook size={ICON_SIZE} className={ICONS_CLASSNAME} />
       ),
       customers: <AddressBook size={ICON_SIZE} className={ICONS_CLASSNAME} />,
-      quotations: <FileText size={ICON_SIZE} className={ICONS_CLASSNAME} />,
+      quotations: <Quotes size={ICON_SIZE} className={ICONS_CLASSNAME} />,
       'task-operations': (
         <Wrench size={ICON_SIZE} className={ICONS_CLASSNAME} />
       ),
+      'task-disbursements': (
+        <CurrencyDollar size={ICON_SIZE} className={ICONS_CLASSNAME} />
+      ),
+      tags: <Tag size={ICON_SIZE} className={ICONS_CLASSNAME} />,
       settings: <GearSix size={ICON_SIZE} className={ICONS_CLASSNAME} />,
     }),
     [ICONS_CLASSNAME, ICON_SIZE]

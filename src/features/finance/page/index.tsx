@@ -5,14 +5,13 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import DeleteModal from '@/components/common/delete-modal';
-import { Table, type Column } from '@/components/common/table';
+import { Table, type Column, type TableActionItem } from '@/components/common/table';
 import TableText from '@/components/common/table-text';
 import { PrimaryButton, SecondaryButton } from '@/components/ui/button';
 import { DateCalendarInput } from '@/components/ui/date-calendar';
 import Modal from '@/components/ui/dialog';
 import Input from '@/components/ui/input';
 import SelectInput, { type SelectOption } from '@/components/ui/select';
-import SquareButton from '@/components/ui/squareButton';
 import Textarea from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/toast';
 import { PERMISSION_ACTIONS, PERMISSION_GROUPS } from '@/constants/permissions';
@@ -132,26 +131,8 @@ export default function FinancePage({ type }: FinancePageProps) {
         header: t('date'),
         render: (row) => <TableText text={formatDate(row.createdAt)} />,
       },
-      {
-        id: 'actions',
-        header: t('actions'),
-        stopRowClick: true,
-        render: (row) => (
-          <RowActions
-            onView={() => setViewBill(row)}
-            onEdit={
-              canEdit ? () => navigate(`/action-bill?id=${row.id}`) : undefined
-            }
-            onDelete={
-              canDelete
-                ? () => setDeleteTarget({ id: row.id, number: row.no ?? '-' })
-                : undefined
-            }
-          />
-        ),
-      },
     ],
-    [canDelete, canEdit, i18n.language, navigate, t]
+    [i18n.language, t]
   );
   const bondColumns = useMemo<Column<BondDto>[]>(
     () => [
@@ -182,31 +163,81 @@ export default function FinancePage({ type }: FinancePageProps) {
         header: t('date'),
         render: (row) => <TableText text={formatDate(row.date)} />,
       },
-      {
-        id: 'actions',
-        header: t('actions'),
-        stopRowClick: true,
-        render: (row) => (
-          <RowActions
-            onView={() => setViewBond(row)}
-            onEdit={
-              canEdit
-                ? () => {
-                    setEditBond(row);
-                    setBondOpen(true);
-                  }
-                : undefined
-            }
-            onDelete={
-              canDelete
-                ? () => setDeleteTarget({ id: row.id, number: row.no ?? '-' })
-                : undefined
-            }
-          />
-        ),
-      },
     ],
-    [canDelete, canEdit, i18n.language, t]
+    [i18n.language, t]
+  );
+  const billActions = useMemo<TableActionItem<BillDto>[]>(
+    () => [
+      {
+        id: 'view',
+        icon: <Eye size={18} />,
+        label: t('view'),
+        onClick: setViewBill,
+        variant: 'primary',
+      },
+      ...(canEdit
+        ? [
+            {
+              id: 'edit',
+              icon: <NotePencil size={18} />,
+              label: t('edit'),
+              onClick: (row: BillDto) => navigate(`/action-bill?id=${row.id}`),
+              variant: 'primary' as const,
+            },
+          ]
+        : []),
+      ...(canDelete
+        ? [
+            {
+              id: 'delete',
+              icon: <Trash size={18} />,
+              label: t('delete'),
+              onClick: (row: BillDto) =>
+                setDeleteTarget({ id: row.id, number: row.no ?? '-' }),
+              variant: 'danger' as const,
+            },
+          ]
+        : []),
+    ],
+    [canDelete, canEdit, navigate, t]
+  );
+  const bondActions = useMemo<TableActionItem<BondDto>[]>(
+    () => [
+      {
+        id: 'view',
+        icon: <Eye size={18} />,
+        label: t('view'),
+        onClick: setViewBond,
+        variant: 'primary',
+      },
+      ...(canEdit
+        ? [
+            {
+              id: 'edit',
+              icon: <NotePencil size={18} />,
+              label: t('edit'),
+              onClick: (row: BondDto) => {
+                setEditBond(row);
+                setBondOpen(true);
+              },
+              variant: 'primary' as const,
+            },
+          ]
+        : []),
+      ...(canDelete
+        ? [
+            {
+              id: 'delete',
+              icon: <Trash size={18} />,
+              label: t('delete'),
+              onClick: (row: BondDto) =>
+                setDeleteTarget({ id: row.id, number: row.no ?? '-' }),
+              variant: 'danger' as const,
+            },
+          ]
+        : []),
+    ],
+    [canDelete, canEdit, t]
   );
 
   const remove = async () => {
@@ -300,6 +331,12 @@ export default function FinancePage({ type }: FinancePageProps) {
         data={items}
         isLoading={currentQuery.isLoading}
         emptyMessage={t('no_records')}
+        actionsColumn={{
+          header: t('actions'),
+          actions: (type === 'bills' ? billActions : bondActions) as TableActionItem<
+            BillDto | BondDto
+          >[],
+        }}
         pagination={{
           pageIndex: page - 1,
           pageSize: PAGE_SIZE,
@@ -337,38 +374,6 @@ export default function FinancePage({ type }: FinancePageProps) {
         handelDelete={remove}
       />
     </motion.div>
-  );
-}
-
-function RowActions({
-  onView,
-  onEdit,
-  onDelete,
-}: {
-  onView: () => void;
-  onEdit?: () => void;
-  onDelete?: () => void;
-}) {
-  const { t } = useTranslation('finance');
-  return (
-    <div className="flex gap-1">
-      <SquareButton Icon={Eye} ariaLabel={t('view')} onClick={onView} />
-      {onEdit && (
-        <SquareButton
-          Icon={NotePencil}
-          ariaLabel={t('edit')}
-          onClick={onEdit}
-        />
-      )}
-      {onDelete && (
-        <SquareButton
-          Icon={Trash}
-          ariaLabel={t('delete')}
-          className="hover:border-danger-500"
-          onClick={onDelete}
-        />
-      )}
-    </div>
   );
 }
 
