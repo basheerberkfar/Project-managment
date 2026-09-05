@@ -2,24 +2,33 @@ import {
   Bell,
   Buildings,
   Check,
+  Fingerprint,
   Flag,
   GearSix,
   Plus,
   Rows,
   Trash,
 } from '@phosphor-icons/react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { PrimaryButton, SecondaryButton } from '@/components/ui/button';
 import Input from '@/components/ui/input';
+import SelectInput, { type SelectOption } from '@/components/ui/select';
 import SquareButton from '@/components/ui/squareButton';
 import { Toggle as UiToggle } from '@/components/ui/toggle';
+import FaceAuthModal from '@/features/auth/components/face-auth-modal';
 import FinancialTypesSettings from '@/features/finance/components/financial-types-settings';
 import { RelatedResourcePanel } from '@/features/management/page';
 import {
   TaskCategoriesSettings,
   TaskStatusesSettings,
 } from '@/features/projects/components/task-settings';
+import {
+  useUpdateUserFaceDescriptorMutation,
+  useUsersQuery,
+} from '@/features/users/service';
+import { getApiErrorMessage } from '@/utils/helpers';
 import { useTranslation } from 'react-i18next';
+import { useToast } from '@/components/ui/toast';
 
 type ColorItem = {
   id: number;
@@ -417,12 +426,7 @@ export default function SettingsPage() {
         <CompanySettingsForm value={company} onChange={setCompany} />
       )}
       {activeTab === 'login-settings' && (
-        <section className="rounded-2 border border-light-card-border bg-white p-4 dark:border-dark-card-border dark:bg-dark-card-background">
-          <h2 className="font-semibold">{t('login_title')}</h2>
-          <p className="mt-2 text-sm text-light-text-secondary dark:text-dark-secondary">
-            {t('login_description')}
-          </p>
-        </section>
+        <LoginSettingsSection />
       )}
       {activeTab === 'hr' && (
         <section className="rounded-2 border border-light-card-border bg-white p-4 dark:border-dark-card-border dark:bg-dark-card-background">
@@ -434,6 +438,92 @@ export default function SettingsPage() {
       )}
       {activeTab === 'reference-data' && <ReferenceDataSettings />}
     </div>
+  );
+}
+
+function LoginSettingsSection() {
+  const { t } = useTranslation('settings');
+  const { showToast } = useToast();
+  const [selectedUserId, setSelectedUserId] = useState('');
+  const [faceModalOpen, setFaceModalOpen] = useState(false);
+  const users = useUsersQuery({ page: 1, pageSize: 100, IsActive: true });
+  const updateFaceDescriptor = useUpdateUserFaceDescriptorMutation();
+  const userOptions = useMemo<SelectOption[]>(
+    () =>
+      (users.data?.items ?? []).map((user) => ({
+        label: user.name || user.email || user.id,
+        value: user.id,
+      })),
+    [users.data?.items]
+  );
+
+  const selectedUser =
+    userOptions.find((option) => option.value === selectedUserId) ?? null;
+
+  const saveFaceDescriptor = (faceDescriptor: number[]) => {
+    if (!selectedUserId) return;
+    updateFaceDescriptor.mutate(
+      { id: selectedUserId, faceDescriptor },
+      {
+        onSuccess: () => {
+          showToast({
+            variant: 'success',
+            description: t('face_descriptor_saved'),
+          });
+          setFaceModalOpen(false);
+        },
+        onError: (error) => {
+          showToast({
+            variant: 'danger',
+            description: getApiErrorMessage(error, t('face_descriptor_failed')),
+          });
+        },
+      }
+    );
+  };
+
+  return (
+    <section className="space-y-4 rounded-2 border border-light-card-border bg-white p-4 dark:border-dark-card-border dark:bg-dark-card-background">
+      <div>
+        <h2 className="font-semibold text-light-text-primary dark:text-dark-primary">
+          {t('login_title')}
+        </h2>
+        <p className="mt-2 text-sm text-light-text-secondary dark:text-dark-secondary">
+          {t('login_description')}
+        </p>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
+        <SelectInput
+          label={t('face_user')}
+          required
+          options={userOptions}
+          isLoading={users.isLoading}
+          value={selectedUser}
+          onChange={(option) =>
+            setSelectedUserId((option as SelectOption | null)?.value ?? '')
+          }
+        />
+        <PrimaryButton
+          icon={<Fingerprint size={16} />}
+          disabled={!selectedUserId}
+          onClick={() => setFaceModalOpen(true)}
+        >
+          {t('define_face')}
+        </PrimaryButton>
+      </div>
+
+      <FaceAuthModal
+        open={faceModalOpen}
+        title={t('define_face')}
+        description={t('camera_help')}
+        captureText={t('save_face')}
+        cancelText={t('cancel')}
+        isSubmitting={updateFaceDescriptor.isPending}
+        onClose={() => setFaceModalOpen(false)}
+        onCapture={saveFaceDescriptor}
+      />
+    </section>
   );
 }
 

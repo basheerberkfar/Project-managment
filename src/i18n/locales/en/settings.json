@@ -39,7 +39,13 @@
   "whatsapp_footer": "WhatsApp footer",
   "media_upload_note": "Logo upload uses the shared media uploader in API mode. The image ID and delete-image values remain preserved in the request.",
   "login_title": "Login settings",
-  "login_description": "Login records and policy controls are managed from this section.",
+  "login_description": "Manage face sign-in enrollment for active users.",
+  "face_user": "User",
+  "define_face": "Define face print",
+  "save_face": "Save face print",
+  "camera_help": "Allow camera access and center the face clearly.",
+  "face_descriptor_saved": "Face print saved successfully",
+  "face_descriptor_failed": "Failed to save face print",
   "hr_title": "HR settings",
   "hr_description": "Departments and job titles remain connected to their existing pages under Users and Roles."
 }

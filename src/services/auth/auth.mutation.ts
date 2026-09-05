@@ -41,6 +41,15 @@ export const useLoginMutation = (options?: mutationOptions<LoginResponse>) => {
   });
 };
 
+export const useFaceLoginMutation = (
+  options?: mutationOptions<LoginResponse>
+) => {
+  return useMutation({
+    mutationFn: authApi.faceLogin,
+    ...options,
+  });
+};
+
 export const useLogoutMutation = (options?: mutationOptions) => {
   return useMutation({
     mutationFn: authApi.logout,

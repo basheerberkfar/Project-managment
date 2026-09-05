@@ -9,6 +9,18 @@ import { useConfigurableTableColumns } from '@/features/roles/hooks/use-configur
 import UserStatusBadge from '../components/user-status-badge';
 import type { UserDto } from '../service';
 
+const getUserRoleText = (user: UserDto) => {
+  if (user.role?.name?.trim()) return user.role.name;
+  if (user.roleName?.trim()) return user.roleName;
+
+  const roles = user.roles
+    ?.map((role) => role.name?.trim())
+    .filter((name): name is string => Boolean(name));
+
+  if (roles?.length) return roles.join(', ');
+  return user.type?.trim() || '-';
+};
+
 export function useUsersTableColumns({
   onView,
   onEdit,
@@ -67,6 +79,12 @@ export function useUsersTableColumns({
         render: (row) => (
           <TableText text={row.jobTitle?.name || row.jobTitleName || '-'} />
         ),
+      },
+      {
+        id: 'role',
+        header: t('role_name'),
+        sortable: true,
+        render: (row) => <TableText text={getUserRoleText(row)} />,
       },
       {
         id: 'status',

@@ -277,6 +277,10 @@ function ProjectDetails({ projectId }: { projectId: string }) {
   const [activeTab, setActiveTab] = useState('general');
   const [deleteOpen, setDeleteOpen] = useState(false);
   const project = projectQuery.data;
+  const statusOptions = statusValues.map((status) => ({
+    label: t(`api_status_${status}`),
+    value: status,
+  }));
   const tabs = [
     'general',
     'members',
@@ -325,11 +329,29 @@ function ProjectDetails({ projectId }: { projectId: string }) {
           { label: project.name ?? '-' },
         ]}
         actions={
-          <SquareButton
-            Icon={Trash}
-            ariaLabel={t('delete')}
-            onClick={() => setDeleteOpen(true)}
-          />
+          <div className="flex items-center gap-2">
+            <SelectInput
+              wrapperClassName="w-[190px]"
+              label={t('status')}
+              options={statusOptions}
+              value={
+                statusOptions.find((item) => item.value === project.status) ??
+                null
+              }
+              isDisabled={updateProject.isPending}
+              onChange={(option) => {
+                const nextStatus = (option as SelectOption | null)
+                  ?.value as ProjectStatus | undefined;
+                if (!nextStatus || nextStatus === project.status) return;
+                void changeStatus(nextStatus);
+              }}
+            />
+            <SquareButton
+              Icon={Trash}
+              ariaLabel={t('delete')}
+              onClick={() => setDeleteOpen(true)}
+            />
+          </div>
         }
       />
       <section className="overflow-hidden rounded-2 border border-light-card-border bg-white dark:border-dark-card-border dark:bg-dark-card-background">
@@ -337,25 +359,6 @@ function ProjectDetails({ projectId }: { projectId: string }) {
           <p className="text-sm text-light-text-secondary dark:text-dark-secondary">
             {project.description || '-'}
           </p>
-          <div className="flex flex-wrap gap-2">
-            {statusValues.map((status) =>
-              status === project.status ? (
-                <PrimaryButton
-                  key={status}
-                  onClick={() => changeStatus(status)}
-                >
-                  {t(`api_status_${status}`)}
-                </PrimaryButton>
-              ) : (
-                <SecondaryButton
-                  key={status}
-                  onClick={() => changeStatus(status)}
-                >
-                  {t(`api_status_${status}`)}
-                </SecondaryButton>
-              )
-            )}
-          </div>
         </div>
         <div className="flex gap-2 overflow-x-auto border-b border-light-card-border p-3 dark:border-dark-card-border">
           {tabs.map((tab) =>

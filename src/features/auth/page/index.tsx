@@ -7,12 +7,13 @@ import { useForm, type Resolver } from 'react-hook-form';
 import PrimaryButton from '@/components/ui/button/primary-button';
 import clsx from 'clsx';
 import AnonymsNavbar from '../components/anonyms-navbar';
+import FaceAuthModal from '../components/face-auth-modal';
 import LoginLeftSection from '../components/lefft-section';
 import PasswordInput from '@/components/common/password-input';
 import { useToast } from '@/components/ui/toast';
 import { getFirstAccessibleSidebarLink } from '@/components/layout/components/sidebar-schema';
-import { Envelope } from '@phosphor-icons/react';
-import { useLoginMutation } from '@/services/auth/auth.mutation';
+import { Envelope, Fingerprint } from '@phosphor-icons/react';
+import { useFaceLoginMutation, useLoginMutation } from '@/services/auth/auth.mutation';
 import { createLoginSchema } from '../utils';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useNavigate } from 'react-router-dom';
@@ -29,6 +30,7 @@ const SplitLayout: React.FC = () => {
   const { t } = useTranslation('auth');
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const [faceModalOpen, setFaceModalOpen] = React.useState(false);
 
   const showToastMessage = React.useCallback(
     (message: string, variant: 'danger' | 'info' | 'success' = 'danger') => {
@@ -65,6 +67,22 @@ const SplitLayout: React.FC = () => {
   });
 
   const { mutate: login, isPending: isLoggingIn } = useLoginMutation();
+  const { mutate: faceLogin, isPending: isFaceLoggingIn } =
+    useFaceLoginMutation();
+
+  const handleLoginSuccess = (
+    response: LoginResponse,
+    successMessage?: string
+  ) => {
+    setAuthToken(response.accessToken);
+    setRefreshToken(response.refreshToken);
+    setAuthUser(response.user);
+    const message = successMessage ?? response.message;
+    if (message?.trim()) {
+      showToastMessage(message, 'success');
+    }
+    navigate(getFirstAccessibleSidebarLink());
+  };
 
   const handleLogin = (data: FormValues) => {
     login(
@@ -73,16 +91,7 @@ const SplitLayout: React.FC = () => {
         password: data.password,
       },
       {
-        onSuccess: (response: LoginResponse) => {
-          console.log('response', response);
-          setAuthToken(response.accessToken);
-          setRefreshToken(response.refreshToken);
-          setAuthUser(response.user);
-          if (response.message?.trim()) {
-            showToastMessage(response.message, 'success');
-          }
-          navigate(getFirstAccessibleSidebarLink());
-        },
+        onSuccess: (response) => handleLoginSuccess(response),
         onError: (error) => {
           handleFormErrors<FormValues>({
             error,
@@ -99,7 +108,26 @@ const SplitLayout: React.FC = () => {
     );
   };
 
-  const isSubmitting = isLoggingIn;
+  const handleFaceLogin = (faceDescriptor: number[]) => {
+    faceLogin(
+      { faceDescriptor },
+      {
+        onSuccess: (response) => {
+          setFaceModalOpen(false);
+          handleLoginSuccess(
+            response,
+            t('right-side.face_login_success', {
+              name:
+                response.user.full_name || response.user.name || response.user.email,
+            })
+          );
+        },
+        onError: () => showToastMessage(t('right-side.face_login_failed')),
+      }
+    );
+  };
+
+  const isSubmitting = isLoggingIn || isFaceLoggingIn;
 
   return (
     <div
@@ -145,9 +173,30 @@ const SplitLayout: React.FC = () => {
             >
               {t('right-side.title')}
             </PrimaryButton>
+            <PrimaryButton
+              className={clsx('p-[12px] w-full h-[44px]')}
+              variant="outline"
+              type="button"
+              icon={<Fingerprint size={16} />}
+              isSubmitting={isFaceLoggingIn}
+              disabled={isSubmitting}
+              onClick={() => setFaceModalOpen(true)}
+            >
+              {t('right-side.face_login')}
+            </PrimaryButton>
           </form>
         </div>
       </div>
+      <FaceAuthModal
+        open={faceModalOpen}
+        title={t('right-side.face_login')}
+        description={t('right-side.camera_help')}
+        captureText={t('right-side.face_login')}
+        cancelText={t('right-side.cancel')}
+        isSubmitting={isFaceLoggingIn}
+        onClose={() => setFaceModalOpen(false)}
+        onCapture={handleFaceLogin}
+      />
     </div>
   );
 };

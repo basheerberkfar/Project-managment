@@ -26,6 +26,15 @@ const normalizeUser = (user: UserDto): UserDto => ({
           name: user.jobTitleName ?? '',
         }
       : null),
+  role:
+    user.role ??
+    (user.roleId || user.roleName
+      ? {
+          id: user.roleId ?? '',
+          name: user.roleName ?? '',
+        }
+      : null),
+  roles: Array.isArray(user.roles) ? user.roles : [],
 });
 
 export const useUsersQuery = (params?: UserFilters) =>
@@ -90,6 +99,52 @@ export const useUpdateUserMutation = () => {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateUserDto }) =>
       usersService.update(id, data),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: usersKeys.detail(id) });
+      queryClient.invalidateQueries({ queryKey: usersKeys.lists() });
+    },
+  });
+};
+
+export const useUpdateUserFaceDescriptorMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      faceDescriptor,
+    }: {
+      id: string;
+      faceDescriptor: number[];
+    }) => {
+      const cachedUser = queryClient.getQueryData<UserDto>(
+        usersKeys.detail(id)
+      );
+      const user =
+        cachedUser ??
+        normalizeUser(
+          extractApiItem<UserDto>((await usersService.getOne(id)).data) ??
+            ({} as UserDto)
+        );
+
+      if (!user.name || !user.email) {
+        throw new Error('User name and email are required to update face data');
+      }
+
+      const payload: UpdateUserDto = {
+        name: user.name,
+        email: user.email,
+        phoneNumber: user.phoneNumber ?? '',
+        countryCode: user.countryCode ?? '',
+        gender: user.gender,
+        departmentId: user.departmentId ?? user.department?.id ?? '',
+        jobTitleId: user.jobTitleId ?? user.jobTitle?.id ?? '',
+        isActive: user.isActive,
+        faceDescriptor,
+      };
+
+      return usersService.update(id, payload);
+    },
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: usersKeys.detail(id) });
       queryClient.invalidateQueries({ queryKey: usersKeys.lists() });

@@ -7,6 +7,11 @@ export type UserReference = {
   name: string;
 };
 
+export type UserRoleReference = {
+  id?: string | number;
+  name?: string | null;
+};
+
 export type UserDto = {
   id: string;
   name: string;
@@ -23,8 +28,14 @@ export type UserDto = {
   jobTitleId?: string;
   department?: UserReference | null;
   jobTitle?: UserReference | null;
+  roleId?: string | null;
+  roleName?: string | null;
+  role?: UserRoleReference | null;
+  roles?: UserRoleReference[];
+  type?: string | null;
   createdAt?: string;
   updatedAt?: string;
+  faceDescriptor?: number[] | null;
 };
 
 export type CreateUserDto = {
@@ -39,7 +50,9 @@ export type CreateUserDto = {
   isActive: boolean;
 };
 
-export type UpdateUserDto = Partial<Omit<CreateUserDto, 'password'>>;
+export type UpdateUserDto = Partial<Omit<CreateUserDto, 'password'>> & {
+  faceDescriptor?: number[] | null;
+};
 
 export type ChangePasswordDto = {
   password: string;

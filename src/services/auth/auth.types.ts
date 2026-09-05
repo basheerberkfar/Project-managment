@@ -29,6 +29,10 @@ export type LoginRequest = {
   password: string;
 };
 
+export type FaceLoginRequest = {
+  faceDescriptor: number[];
+};
+
 export type UserRolePermissions = Partial<
   Record<
     PermissionGroup,
@@ -37,11 +41,11 @@ export type UserRolePermissions = Partial<
 >;
 
 export type AuthRole = {
-  id: number;
+  id: number | string;
   name: string;
-  is_default: number;
-  users_count: number;
-  permissions: UserRolePermissions;
+  is_default?: number;
+  users_count?: number;
+  permissions?: UserRolePermissions;
 };
 
 export type AuthBranch = {
@@ -81,6 +85,7 @@ export type AuthUser = {
   permissions?: string[];
   permission: string[];
   image: string | null;
+  faceDescriptor?: number[] | null;
 };
 
 export type LoginApiResponse = {
@@ -92,7 +97,22 @@ export type LoginApiResponse = {
     name: string;
     email: string;
     isAdmin: boolean;
-    permissions: string[];
+    permissions?: string[];
+    role?: AuthRole | null;
+    roles?: AuthRole[];
+    countryCode?: string | null;
+    phoneNumber?: string | null;
+    gender?: string | null;
+    departmentId?: string | null;
+    departmentName?: string | null;
+    jobTitleId?: string | null;
+    jobTitleName?: string | null;
+    isActive?: boolean;
+    isDefault?: boolean;
+    type?: string | null;
+    createdAt?: string;
+    updatedAt?: string | null;
+    faceDescriptor?: number[] | null;
   };
 };
 

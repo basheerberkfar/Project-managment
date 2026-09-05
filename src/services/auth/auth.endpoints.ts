@@ -4,6 +4,7 @@ import type {
   AuthUser,
   CheckEmailRequest,
   LoginApiResponse,
+  FaceLoginRequest,
   LoginRequest,
   LoginResponse,
   MeResponse,
@@ -81,6 +82,10 @@ const normalizeAuthUser = (user: LoginApiResponse['user'] | AuthUser): AuthUser 
     permissions,
     permission: permissions,
     image: 'image' in user ? (user.image ?? null) : null,
+    faceDescriptor:
+      'faceDescriptor' in user && Array.isArray(user.faceDescriptor)
+        ? user.faceDescriptor
+        : null,
   };
 };
 
@@ -165,6 +170,13 @@ export const authApi = {
   login: async (data: LoginRequest) => {
     const response = await api.post<LoginApiResponse | LoginEnvelope>(
       ROUTE.LOGIN,
+      data
+    );
+    return normalizeLoginResponse(response.data);
+  },
+  faceLogin: async (data: FaceLoginRequest) => {
+    const response = await api.post<LoginApiResponse | LoginEnvelope>(
+      ROUTE.FACE_LOGIN,
       data
     );
     return normalizeLoginResponse(response.data);
